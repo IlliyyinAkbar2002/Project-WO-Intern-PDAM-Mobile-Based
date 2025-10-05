@@ -1,0 +1,36 @@
+import 'package:dio/dio.dart';
+import 'package:mobile_intern_pdam/core/resource/data_state.dart';
+import 'package:mobile_intern_pdam/core/resource/remote_data_source.dart';
+import 'package:mobile_intern_pdam/feature/work_order/data/models/form_model.dart';
+
+class FormRemoteDataSource extends RemoteDatasource {
+  FormRemoteDataSource() : super();
+
+  Future<DataState<List<FormModel>>> fetchProgressByWorkOrderTypeId(
+    int workOrderTypeId,
+  ) async {
+    try {
+      final response = await dio.get(
+        '/detail-form',
+        queryParameters: {'jenis_workorder_id': workOrderTypeId},
+      );
+      if (response.data is Map<String, dynamic>) {
+        final progressModel = FormModel.fromMap(response.data);
+        return DataSuccess([progressModel]); // Bungkus dalam List
+      } else {
+        // Jika response.data adalah List (opsional, untuk fleksibilitas)
+        final data = (response.data as List)
+            .map<FormModel>((json) => FormModel.fromMap(json))
+            .toList();
+        return DataSuccess(data);
+      }
+    } catch (e) {
+      return DataFailed(
+        DioException(
+          error: e,
+          requestOptions: RequestOptions(path: '/detail-form'),
+        ),
+      );
+    }
+  }
+}

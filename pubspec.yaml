@@ -1,0 +1,44 @@
+name: mobile_intern_pdam
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  another_flushbar: ^1.12.32
+  dio: ^5.9.0
+  equatable: ^2.0.5
+  filter_list: ^1.0.3
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^9.1.1
+  flutter_dotenv: ^6.0.0
+  get_it: ^8.0.3
+  flutter_google_maps_webservices: ^1.1.1
+  flutter_hooks: ^0.21.3+1
+  flutter_slidable: ^4.0.3
+  geolocator: ^14.0.2
+  google_maps_flutter: ^2.13.1
+  google_places_flutter: ^2.1.1
+  hugeicons: ^1.1.0
+  iconsax_flutter: ^1.0.1
+  image_picker: ^1.2.0
+  intl: ^0.20.2
+  location: ^8.0.1
+  path: ^1.9.1
+  postgres: ^3.5.8
+  retrofit: ^4.7.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  retrofit_generator: ^10.0.6
+  build_runner: ^2.9.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - .env
