@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_intern_pdam/feature/work_order/data/data_source/local/work_order_local_data_source.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/data_source/remote/work_order_remote_data_source.dart';
 import '/core/resource/data_state.dart';
 import '/feature/work_order/data/models/work_order_model.dart';
@@ -8,9 +7,8 @@ import '/feature/work_order/domain/repositories/work_order_repository.dart';
 
 class WorkOrderRepositoryImpl implements WorkOrderRepository {
   final WorkOrderRemoteDataSource remoteDataSource;
-  final WorkOrderLocalDataSource? localDataSource; // Made optional
 
-  WorkOrderRepositoryImpl(this.remoteDataSource, this.localDataSource);
+  WorkOrderRepositoryImpl(this.remoteDataSource);
 
   @override
   Future<DataState<List<WorkOrderEntity>>> getWorkOrders(
@@ -45,25 +43,12 @@ class WorkOrderRepositoryImpl implements WorkOrderRepository {
         final entities = response.data!
             .map((model) => model.toEntity())
             .toList();
-        // for (var workOrder in response.data!) {
-        //   await localDataSource.create(workOrder);
-        // }
         return PaginatedDataSuccess(
           entities,
           totalPages: response.totalPages,
           currentPage: response.currentPage,
         );
       } else {
-        // Try local fallback only if available
-        if (localDataSource != null) {
-          final localResponse = await localDataSource!.fetchAll();
-          if (localResponse is DataSuccess<List<WorkOrderModel>>) {
-            final localEntities = localResponse.data!
-                .map((model) => model.toEntity())
-                .toList();
-            return DataSuccess(localEntities);
-          }
-        }
         return DataFailed(response.error!);
       }
     } catch (e) {
@@ -77,13 +62,6 @@ class WorkOrderRepositoryImpl implements WorkOrderRepository {
     if (response is DataSuccess<WorkOrderModel>) {
       return DataSuccess(response.data!.toEntity());
     } else {
-      // Try local fallback only if available
-      if (localDataSource != null) {
-        final localResponse = await localDataSource!.fetchById(id);
-        if (localResponse is DataSuccess<WorkOrderModel>) {
-          return DataSuccess(localResponse.data!.toEntity());
-        }
-      }
       return DataFailed(response.error!);
     }
   }
@@ -112,19 +90,8 @@ class WorkOrderRepositoryImpl implements WorkOrderRepository {
     final model = WorkOrderModel.fromEntity(workOrder);
     final response = await remoteDataSource.updateWorkOrder(model);
     if (response is DataSuccess<WorkOrderModel>) {
-      // Update local cache if available
-      if (localDataSource != null) {
-        await localDataSource!.update(response.data!);
-      }
       return DataSuccess(response.data!.toEntity());
     } else {
-      // Try local fallback only if available
-      if (localDataSource != null) {
-        final localResponse = await localDataSource!.update(model);
-        if (localResponse is DataSuccess<WorkOrderModel>) {
-          return DataSuccess(localResponse.data!.toEntity());
-        }
-      }
       return DataFailed(response.error!);
     }
   }
@@ -133,19 +100,8 @@ class WorkOrderRepositoryImpl implements WorkOrderRepository {
   Future<DataState<void>> deleteWorkOrder(int id) async {
     final response = await remoteDataSource.deleteWorkOrder(id);
     if (response is DataSuccess) {
-      // Delete from local cache if available
-      if (localDataSource != null) {
-        await localDataSource!.delete(id);
-      }
       return const DataSuccess(null);
     } else {
-      // Try local fallback only if available
-      if (localDataSource != null) {
-        final localResponse = await localDataSource!.delete(id);
-        if (localResponse is DataSuccess) {
-          return const DataSuccess(null);
-        }
-      }
       return DataFailed(response.error!);
     }
   }

@@ -1,5 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_intern_pdam/core/resource/data_state.dart';
+import 'package:mobile_intern_pdam/core/utils/auth_storage.dart';
+import 'package:mobile_intern_pdam/feature/work_order/data/data_source/remote/auth_remote_data_source.dart';
+import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/root_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -130,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
         SizedBox(height: 8),
         Text(
-          'Portal Pelanggan',
+          'Portal Work Order',
           style: TextStyle(fontSize: 16, color: Color(0xFF666666)),
           textAlign: TextAlign.center,
         ),
@@ -143,7 +148,7 @@ class _LoginPageState extends State<LoginPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Username / Nomor Pelanggan',
+          'Username',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
@@ -155,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
           controller: _usernameController,
           keyboardType: TextInputType.text,
           decoration: InputDecoration(
-            hintText: 'Masukkan username atau nomor pelanggan',
+            hintText: 'Masukkan username',
             hintStyle: const TextStyle(color: Color(0xFFB0BEC5), fontSize: 14),
             prefixIcon: const Icon(
               Icons.person_outline,
@@ -183,7 +188,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Username atau nomor pelanggan harus diisi';
+              return 'Username harus diisi';
             }
             return null;
           },
@@ -346,12 +351,25 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildFooter() {
-    return const Padding(
-      padding: EdgeInsets.only(bottom: 20),
-      child: Text(
-        '© 2024 PDAM Surya Sembada. Semua hak dilindungi.',
-        style: TextStyle(color: Color(0xFFB0BEC5), fontSize: 12),
-        textAlign: TextAlign.center,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        children: [
+          TextButton.icon(
+            onPressed: _testConnection,
+            icon: const Icon(Icons.network_check, color: Color(0xFF4DD0E1)),
+            label: const Text(
+              'Test Koneksi API',
+              style: TextStyle(color: Color(0xFF4DD0E1), fontSize: 12),
+            ),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            '© 2024 PDAM Surya Sembada. Semua hak dilindungi.',
+            style: TextStyle(color: Color(0xFFB0BEC5), fontSize: 12),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
@@ -362,21 +380,88 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = true;
       });
 
-      // Simulate login process
-      await Future.delayed(const Duration(seconds: 2));
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      // TODO: Implement actual login logic
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login berhasil!'),
-            backgroundColor: Color(0xFF4CAF50),
-          ),
+      try {
+        final authDataSource = AuthRemoteDataSource();
+        final result = await authDataSource.login(
+          email: _usernameController.text.trim(),
+          password: _passwordController.text.trim(),
         );
+
+        if (!mounted) return;
+
+        if (result is DataSuccess) {
+          final authResponse = result.data!;
+
+          // Save token and user data
+          if (authResponse.token != null) {
+            AuthStorage.saveToken(authResponse.token!);
+          }
+          if (authResponse.user != null) {
+            AuthStorage.saveUser(authResponse.user!);
+          }
+
+          // Show success message
+          final message = authResponse.message ?? 'Login berhasil!';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+              backgroundColor: const Color(0xFF4CAF50),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+
+          // Navigate to main page
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const RootPage()),
+          );
+        } else if (result is DataFailed) {
+          // Handle login failure
+          String errorMessage = 'Email atau password salah';
+
+          if (result.error is DioException) {
+            final dioError = result.error as DioException;
+            if (dioError.response?.data != null) {
+              // Try to extract error message from response
+              if (dioError.response?.data is Map) {
+                errorMessage =
+                    dioError.response?.data['message'] ??
+                    dioError.response?.data['error'] ??
+                    'Email atau password salah';
+              }
+            } else if (dioError.type == DioExceptionType.connectionTimeout ||
+                dioError.type == DioExceptionType.receiveTimeout) {
+              errorMessage = 'Koneksi timeout, periksa koneksi internet Anda';
+            } else if (dioError.type == DioExceptionType.connectionError) {
+              errorMessage = 'Tidak dapat terhubung ke server';
+            }
+          }
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(errorMessage),
+                backgroundColor: const Color(0xFFF44336),
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Terjadi kesalahan: ${e.toString()}'),
+              backgroundColor: const Color(0xFFF44336),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
     }
   }
@@ -389,6 +474,63 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor: Color(0xFF2196F3),
       ),
     );
+  }
+
+  void _testConnection() async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Menguji koneksi ke server...'),
+        backgroundColor: Color(0xFF2196F3),
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    try {
+      final dio = Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 5),
+        ),
+      );
+
+      // Test root endpoint
+      print('🧪 Testing connection to API server...');
+      final response = await dio.get('http://172.30.4.100:8000/api');
+
+      print('✅ Connection successful!');
+      print('📥 Response: ${response.data}');
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('✅ Koneksi berhasil!\nStatus: ${response.statusCode}'),
+          backgroundColor: const Color(0xFF4CAF50),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } on DioException catch (e) {
+      print('❌ Connection test failed!');
+      print('Type: ${e.type}');
+      print('Message: ${e.message}');
+
+      String errorMsg = 'Gagal terhubung ke server';
+      if (e.type == DioExceptionType.connectionTimeout) {
+        errorMsg = 'Timeout - Server tidak merespon';
+      } else if (e.type == DioExceptionType.connectionError) {
+        errorMsg = 'Error - Tidak dapat terhubung ke http://172.30.4.100:8000';
+      }
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ $errorMsg'),
+          backgroundColor: const Color(0xFFF44336),
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
   }
 }
 

@@ -13,8 +13,15 @@ class RemoteDatasource {
     dio = Dio(
       BaseOptions(
         baseUrl: (domain ?? AppConfig.backendDomain) + baseEndPoint,
-        connectTimeout: const Duration(seconds: 10),
-        receiveTimeout: const Duration(seconds: 10),
+        connectTimeout: const Duration(seconds: 60),
+        receiveTimeout: const Duration(seconds: 60),
+        sendTimeout: const Duration(seconds: 60),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          // Add X-Requested-With to indicate API request (not web browser)
+          'X-Requested-With': 'XMLHttpRequest',
+        },
       ),
     );
     _addDefaultInterceptors();
@@ -101,16 +108,28 @@ class RemoteDatasource {
   }
 
   Map<String, dynamic> headers({ContentType? contentType}) {
-    final token = authTokenGetter();
-    return {
-      'Content-Type': contentType == null || contentType == ContentType.json
-          ? 'application/json'
-          : contentType == ContentType.form
-          ? 'application/x-www-form-urlencoded'
-          : 'multipart/form-data',
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token',
-    };
+    try {
+      final token = authTokenGetter();
+      return {
+        'Content-Type': contentType == null || contentType == ContentType.json
+            ? 'application/json'
+            : contentType == ContentType.form
+            ? 'application/x-www-form-urlencoded'
+            : 'multipart/form-data',
+        'Accept': 'application/json',
+        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      };
+    } catch (e) {
+      // If authTokenGetter not set, return headers without auth
+      return {
+        'Content-Type': contentType == null || contentType == ContentType.json
+            ? 'application/json'
+            : contentType == ContentType.form
+            ? 'application/x-www-form-urlencoded'
+            : 'multipart/form-data',
+        'Accept': 'application/json',
+      };
+    }
   }
 
   void _addDefaultInterceptors() {

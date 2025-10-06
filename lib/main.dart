@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mobile_intern_pdam/config/theme/app_theme.dart';
+import 'package:mobile_intern_pdam/core/resource/remote_data_source.dart';
 import 'package:mobile_intern_pdam/core/utils/app_snackbar.dart';
+import 'package:mobile_intern_pdam/core/utils/auth_storage.dart';
 import 'package:mobile_intern_pdam/core/widget/app_state_page.dart';
 import 'package:mobile_intern_pdam/feature/work_order/presentation/bloc/work_order_bloc.dart';
 import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/login.dart';
+// import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/assignee_page/assignee_work_order_detail_page.dart';
+// import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/detail_work_order_page.dart';
 import 'service_locator.dart' as di;
 
 void main() async {
@@ -13,6 +17,10 @@ void main() async {
 
   try {
     await dotenv.load(); // ✅ Muat API Key dari file .env
+
+    // Set up auth token getter for API calls
+    RemoteDatasource.setAuthTokenGetter(() => AuthStorage.getToken());
+
     await di.init();
     print("🎉 Dependency berhasil diinisialisasi!");
   } catch (e, stacktrace) {
@@ -38,6 +46,7 @@ class _AppState extends AppStatePage<App> {
       providers: [BlocProvider(create: (_) => di.sl<WorkOrderBloc>())],
       child: MaterialApp(
         theme: ThemeManager.theme,
+        // home: const LoginPage(),
         home: const LoginPage(),
         debugShowCheckedModeBanner: false,
         themeMode: ThemeMode.light,
