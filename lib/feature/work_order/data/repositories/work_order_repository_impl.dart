@@ -8,7 +8,7 @@ import '/feature/work_order/domain/repositories/work_order_repository.dart';
 
 class WorkOrderRepositoryImpl implements WorkOrderRepository {
   final WorkOrderRemoteDataSource remoteDataSource;
-  final WorkOrderLocalDataSource localDataSource;
+  final WorkOrderLocalDataSource? localDataSource; // Made optional
 
   WorkOrderRepositoryImpl(this.remoteDataSource, this.localDataSource);
 
@@ -54,15 +54,17 @@ class WorkOrderRepositoryImpl implements WorkOrderRepository {
           currentPage: response.currentPage,
         );
       } else {
-        final localResponse = await localDataSource.fetchAll();
-        if (localResponse is DataSuccess<List<WorkOrderModel>>) {
-          final localEntities = localResponse.data!
-              .map((model) => model.toEntity())
-              .toList();
-          return DataSuccess(localEntities);
-        } else {
-          return DataFailed(response.error!);
+        // Try local fallback only if available
+        if (localDataSource != null) {
+          final localResponse = await localDataSource!.fetchAll();
+          if (localResponse is DataSuccess<List<WorkOrderModel>>) {
+            final localEntities = localResponse.data!
+                .map((model) => model.toEntity())
+                .toList();
+            return DataSuccess(localEntities);
+          }
         }
+        return DataFailed(response.error!);
       }
     } catch (e) {
       return DataFailed("Terjadi kesalahan: $e");
@@ -75,12 +77,14 @@ class WorkOrderRepositoryImpl implements WorkOrderRepository {
     if (response is DataSuccess<WorkOrderModel>) {
       return DataSuccess(response.data!.toEntity());
     } else {
-      final localResponse = await localDataSource.fetchById(id);
-      if (localResponse is DataSuccess<WorkOrderModel>) {
-        return DataSuccess(localResponse.data!.toEntity());
-      } else {
-        return DataFailed(response.error!);
+      // Try local fallback only if available
+      if (localDataSource != null) {
+        final localResponse = await localDataSource!.fetchById(id);
+        if (localResponse is DataSuccess<WorkOrderModel>) {
+          return DataSuccess(localResponse.data!.toEntity());
+        }
       }
+      return DataFailed(response.error!);
     }
   }
 
@@ -108,15 +112,20 @@ class WorkOrderRepositoryImpl implements WorkOrderRepository {
     final model = WorkOrderModel.fromEntity(workOrder);
     final response = await remoteDataSource.updateWorkOrder(model);
     if (response is DataSuccess<WorkOrderModel>) {
-      await localDataSource.update(response.data!);
+      // Update local cache if available
+      if (localDataSource != null) {
+        await localDataSource!.update(response.data!);
+      }
       return DataSuccess(response.data!.toEntity());
     } else {
-      final localResponse = await localDataSource.update(model);
-      if (localResponse is DataSuccess<WorkOrderModel>) {
-        return DataSuccess(localResponse.data!.toEntity());
-      } else {
-        return DataFailed(response.error!);
+      // Try local fallback only if available
+      if (localDataSource != null) {
+        final localResponse = await localDataSource!.update(model);
+        if (localResponse is DataSuccess<WorkOrderModel>) {
+          return DataSuccess(localResponse.data!.toEntity());
+        }
       }
+      return DataFailed(response.error!);
     }
   }
 
@@ -124,15 +133,20 @@ class WorkOrderRepositoryImpl implements WorkOrderRepository {
   Future<DataState<void>> deleteWorkOrder(int id) async {
     final response = await remoteDataSource.deleteWorkOrder(id);
     if (response is DataSuccess) {
-      await localDataSource.delete(id);
+      // Delete from local cache if available
+      if (localDataSource != null) {
+        await localDataSource!.delete(id);
+      }
       return const DataSuccess(null);
     } else {
-      final localResponse = await localDataSource.delete(id);
-      if (localResponse is DataSuccess) {
-        return const DataSuccess(null);
-      } else {
-        return DataFailed(response.error!);
+      // Try local fallback only if available
+      if (localDataSource != null) {
+        final localResponse = await localDataSource!.delete(id);
+        if (localResponse is DataSuccess) {
+          return const DataSuccess(null);
+        }
       }
+      return DataFailed(response.error!);
     }
   }
 }

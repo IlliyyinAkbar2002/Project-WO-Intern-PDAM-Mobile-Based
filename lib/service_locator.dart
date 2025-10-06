@@ -1,6 +1,6 @@
 import 'package:get_it/get_it.dart';
-import 'package:postgres/postgres.dart';
-import 'package:mobile_intern_pdam/config/database_config.dart';
+// import 'package:postgres/postgres.dart'; // Removed - not using direct PostgreSQL
+// import 'package:mobile_intern_pdam/config/database_config.dart'; // Removed
 import 'package:mobile_intern_pdam/core/common/input_chip/bloc/chip_field_bloc.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/data_source/remote/form_remote_data_source.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/data_source/remote/location_type_remote_data_source.dart';
@@ -38,7 +38,7 @@ import 'package:mobile_intern_pdam/feature/work_order/domain/usecases/work_order
 import 'package:mobile_intern_pdam/feature/work_order/domain/usecases/work_order_type_usecases/get_work_order_type_detail_usecase.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/usecases/work_order_type_usecases/get_work_order_types_usecase.dart';
 
-import '/feature/work_order/data/data_source/local/work_order_local_data_source.dart';
+// import '/feature/work_order/data/data_source/local/work_order_local_data_source.dart'; // Removed - not using local DB
 import '/feature/work_order/data/data_source/remote/work_order_remote_data_source.dart';
 import '/feature/work_order/data/repositories/work_order_repository_impl.dart';
 import '/feature/work_order/domain/repositories/work_order_repository.dart';
@@ -56,48 +56,55 @@ Future<void> init() async {
     print("🔧 Memulai inisialisasi dependency...");
 
     // **1️⃣ External Dependencies - PostgreSQL Connection**
+    // ⚠️ COMMENTED OUT: Mobile apps should NOT connect directly to PostgreSQL
+    // ⚠️ Use Laravel API for all data operations instead
+    // ⚠️ For offline storage, use SQLite/Hive instead
 
-    DatabaseConfig.logConfig();
+    // DatabaseConfig.logConfig();
 
-    final database = await Connection.open(
-      Endpoint(
-        host: DatabaseConfig.host,
-        port: DatabaseConfig.port,
-        database: DatabaseConfig.database,
-        username: DatabaseConfig.username,
-        password: DatabaseConfig.password,
-      ),
-      settings: ConnectionSettings(
-        sslMode: SslMode.disable, // Use SslMode.require for production
-      ),
+    // final database = await Connection.open(
+    //   Endpoint(
+    //     host: DatabaseConfig.host,
+    //     port: DatabaseConfig.port,
+    //     database: DatabaseConfig.database,
+    //     username: DatabaseConfig.username,
+    //     password: DatabaseConfig.password,
+    //   ),
+    //   settings: ConnectionSettings(
+    //     sslMode: SslMode.disable, // Use SslMode.require for production
+    //   ),
+    // );
+
+    // // Create table if not exists
+    // try {
+    //   await database.execute('''
+    //     CREATE TABLE IF NOT EXISTS work_orders (
+    //       id SERIAL PRIMARY KEY,
+    //       title TEXT,
+    //       startDateTime TIMESTAMP,
+    //       duration INTEGER,
+    //       durationUnit TEXT,
+    //       endDateTime TIMESTAMP,
+    //       latitude DOUBLE PRECISION,
+    //       longitude DOUBLE PRECISION,
+    //       creator INTEGER,
+    //       statusId INTEGER,
+    //       workOrderTypeId INTEGER,
+    //       locationTypeId INTEGER,
+    //       requiresApproval INTEGER
+    //     )
+    //   ''');
+    //   print("✅ Work Orders table created/verified");
+    // } catch (e) {
+    //   print("⚠️ Table might already exist: $e");
+    // }
+
+    // sl.registerLazySingleton<Connection>(() => database);
+    // print("✅ PostgreSQL Database terdaftar");
+
+    print(
+      "✅ Skipping direct PostgreSQL connection (using Laravel API instead)",
     );
-
-    // Create table if not exists
-    try {
-      await database.execute('''
-        CREATE TABLE IF NOT EXISTS work_orders (
-          id SERIAL PRIMARY KEY,
-          title TEXT,
-          startDateTime TIMESTAMP,
-          duration INTEGER,
-          durationUnit TEXT,
-          endDateTime TIMESTAMP,
-          latitude DOUBLE PRECISION,
-          longitude DOUBLE PRECISION,
-          creator INTEGER,
-          statusId INTEGER,
-          workOrderTypeId INTEGER,
-          locationTypeId INTEGER,
-          requiresApproval INTEGER
-        )
-      ''');
-      print("✅ Work Orders table created/verified");
-    } catch (e) {
-      print("⚠️ Table might already exist: $e");
-    }
-
-    sl.registerLazySingleton<Connection>(() => database);
-    print("✅ PostgreSQL Database terdaftar");
 
     // **2️⃣ Data Sources**
     sl.registerLazySingleton<WorkOrderRemoteDataSource>(
@@ -105,10 +112,11 @@ Future<void> init() async {
     );
     print("✅ WorkOrderRemoteDataSource terdaftar");
 
-    sl.registerLazySingleton<WorkOrderLocalDataSource>(
-      () => WorkOrderLocalDataSource(sl<Connection>()),
-    );
-    print("✅ WorkOrderLocalDataSource terdaftar");
+    // ⚠️ LocalDataSource commented out - use SQLite instead for offline storage
+    // sl.registerLazySingleton<WorkOrderLocalDataSource>(
+    //   () => WorkOrderLocalDataSource(sl<Connection>()),
+    // );
+    // print("✅ WorkOrderLocalDataSource terdaftar");
 
     sl.registerLazySingleton<WorkOrderTypeRemoteDataSource>(
       () => WorkOrderTypeRemoteDataSource(),
@@ -146,7 +154,7 @@ Future<void> init() async {
     sl.registerLazySingleton<WorkOrderRepository>(
       () => WorkOrderRepositoryImpl(
         sl<WorkOrderRemoteDataSource>(), // remoteDataSource
-        sl<WorkOrderLocalDataSource>(), // localDataSource
+        null, // localDataSource - disabled for now
       ),
     );
     print("✅ WorkOrderRepository terdaftar");
@@ -317,5 +325,6 @@ Future<void> init() async {
   } catch (e, stacktrace) {
     print("❌ Gagal menginisialisasi dependency: $e");
     print(stacktrace);
+    rethrow; // ⚠️ Rethrow agar main.dart tahu ada error
   }
 }
