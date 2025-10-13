@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:mobile_intern_pdam/core/resource/data_state.dart';
 import 'package:mobile_intern_pdam/core/utils/auth_storage.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/data_source/remote/auth_remote_data_source.dart';
-import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/root_page.dart';
+import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/landing_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -412,7 +412,7 @@ class _LoginPageState extends State<LoginPage> {
 
           // Navigate to main page
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const RootPage()),
+            MaterialPageRoute(builder: (context) => const LandingPage()),
           );
         } else if (result is DataFailed) {
           // Handle login failure
