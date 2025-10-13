@@ -47,6 +47,8 @@ app.*.map.json
 MIGRATION_SUMMARY.md
 POSTGRESQL_SETUP.md
 
+test
+
 # Environment files
 .env
 .env.*
