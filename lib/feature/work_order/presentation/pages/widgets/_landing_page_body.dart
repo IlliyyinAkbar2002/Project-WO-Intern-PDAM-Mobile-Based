@@ -16,73 +16,56 @@ class _LandingPageBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColor>()!;
+    final textTheme = Theme.of(context).textTheme;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _RoleSelector(
-            title: 'Pengajuan Work Order',
-            description: 'Untuk membuat dan mengelola work order',
-            icon: Icons.assignment_outlined,
-            selectedId: selectedPicId,
-            idList: [1, 2, 3],
-            onIdChanged: onPicIdChanged,
-            dropdownLabel: 'Pilih PIC ID',
-            buttonLabel: 'Buka Pengajuan',
-            gradientColors: [colors.primary[500]!, colors.primary[600]!],
-            onNavigate: () {
-              if (selectedPicId == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text('Silakan pilih PIC ID terlebih dahulu'),
-                    backgroundColor: colors.warning,
-                  ),
-                );
-                return;
-              }
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      AssignerWorkOrderPage(picId: selectedPicId!),
-                ),
-              );
-            },
+          // Stats Card Section
+          Transform.translate(
+            offset: const Offset(0, -28),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _StatsCard(),
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // Role Selection Card
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: _RoleSelectionCard(
+              selectedPicId: selectedPicId,
+              selectedUserId: selectedUserId,
+              onPicIdChanged: onPicIdChanged,
+              onUserIdChanged: onUserIdChanged,
+            ),
           ),
           const SizedBox(height: 24),
-          _RoleSelector(
-            title: 'Penugasan Work Order',
-            description: 'Untuk melihat dan menyelesaikan tugas',
-            icon: Icons.task_alt_outlined,
-            selectedId: selectedUserId,
-            idList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            onIdChanged: onUserIdChanged,
-            dropdownLabel: 'Pilih User ID',
-            buttonLabel: 'Buka Penugasan',
-            gradientColors: [colors.status[7]!, colors.status[8]!],
-            onNavigate: () {
-              if (selectedUserId == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text(
-                      'Silakan pilih User ID terlebih dahulu',
-                    ),
-                    backgroundColor: colors.warning,
-                  ),
-                );
-                return;
-              }
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      AssigneeWorkOrderPage(userId: selectedUserId!),
-                ),
-              );
-            },
+
+          // Quick Access Section
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              'Quick Access',
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colors.foreground[900],
+              ),
+            ),
           ),
+          const SizedBox(height: 16),
+
+          // Navigation Grid
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: _NavigationGrid(
+              selectedPicId: selectedPicId,
+              selectedUserId: selectedUserId,
+            ),
+          ),
+          const SizedBox(height: 24),
         ],
       ),
     );

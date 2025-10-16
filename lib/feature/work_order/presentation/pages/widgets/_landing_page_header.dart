@@ -10,7 +10,7 @@ class _LandingPageHeader extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -22,21 +22,9 @@ class _LandingPageHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: colors.background[100],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.water_drop,
-                  color: colors.primary[500],
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,42 +33,102 @@ class _LandingPageHeader extends StatelessWidget {
                       'PDAM Surya Sembada',
                       style: textTheme.titleLarge?.copyWith(
                         color: colors.background[100],
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 18,
                       ),
                     ),
+                    const SizedBox(height: 12),
                     Text(
-                      'Work Order Management',
+                      'Work Order System',
+                      style: textTheme.titleLarge?.copyWith(
+                        color: colors.background[100],
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Demo Mode',
                       style: textTheme.bodyMedium?.copyWith(
-                        color: colors.background[100]!.withOpacity(0.9),
+                        color: colors.background[100]!.withOpacity(0.85),
+                        fontSize: 14,
                       ),
                     ),
                   ],
                 ),
               ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  Icons.notifications_outlined,
-                  color: colors.background[100],
-                ),
+              Column(
+                children: [
+                  Stack(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: colors.background[100]!,
+                            width: 4,
+                          ),
+                          borderRadius: BorderRadius.circular(40),
+                        ),
+                        child: CircleAvatar(
+                          radius: 36,
+                          backgroundColor: colors.primary[300],
+                          child: Icon(
+                            Icons.person,
+                            size: 40,
+                            color: colors.background[100],
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              width: 28,
+                              height: 28,
+                              decoration: BoxDecoration(
+                                color: colors.background[100],
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.08),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                Icons.notifications_none_rounded,
+                                size: 16,
+                                color: colors.primary[500],
+                              ),
+                            ),
+                            Positioned(
+                              top: 2,
+                              right: 2,
+                              child: Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: Colors.red[500],
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: colors.background[100]!,
+                                    width: 1.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'Selamat Datang',
-            style: textTheme.headlineLarge?.copyWith(
-              color: colors.background[100],
-              fontWeight: FontWeight.bold,
-              fontSize: 24,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Pilih peran Anda untuk melanjutkan',
-            style: textTheme.bodyMedium?.copyWith(
-              color: colors.background[100]!.withOpacity(0.85),
-            ),
           ),
         ],
       ),
