@@ -8,7 +8,7 @@ import 'package:mobile_intern_pdam/core/utils/auth_storage.dart';
 import 'package:mobile_intern_pdam/core/widget/app_state_page.dart';
 import 'package:mobile_intern_pdam/feature/work_order/presentation/bloc/work_order_bloc.dart';
 import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/landing_page.dart';
-import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/login.dart';
+// import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/login.dart';
 // import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/assignee_page/assignee_work_order_detail_page.dart';
 // import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/detail_work_order_page.dart';
 import 'service_locator.dart' as di;
@@ -17,7 +17,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    await dotenv.load(); // ✅ Muat API Key dari file .env
+    // Try to load .env file, but don't fail if it doesn't exist
+    try {
+      await dotenv.load();
+      print("✅ .env file loaded successfully");
+    } catch (e) {
+      print("⚠️ .env file not found or couldn't be loaded, using defaults: $e");
+      // No-op: AppConfig uses safe fallbacks when dotenv isn't initialized
+    }
 
     // Set up auth token getter for API calls
     RemoteDatasource.setAuthTokenGetter(() => AuthStorage.getToken());

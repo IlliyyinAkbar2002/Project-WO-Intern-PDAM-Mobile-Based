@@ -17,13 +17,16 @@ class _AssignerWorkOrderPageState extends AppStatePage<AssignerWorkOrderPage> {
   int _selectedFilter = 0; // Index filter utama
   // int _subFilter = 0; // Index filter kedua (jika ada)
 
-  final List<String> _filterLabels = ['Pembuatan', 'Persetujuan'];
+  final List<String> _filterLabels = [
+    'Pembuatan Work Order',
+    'Persetujuan Work Order',
+  ];
 
   @override
   Widget buildPage(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        title: 'Work Order',
+        title: 'Work Order Keluar',
         actionIcon: Icons.notification_add,
         onActionPressed: () {},
       ),

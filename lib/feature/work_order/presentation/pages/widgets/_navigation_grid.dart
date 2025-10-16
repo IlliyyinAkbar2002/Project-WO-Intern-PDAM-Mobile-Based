@@ -50,21 +50,14 @@ class _NavigationGrid extends StatelessWidget {
             builder: (ctx) {
               return _TasksBottomSheet(
                 onWorkOrderKeluar: () {
-                  if (selectedPicId == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Please select PIC ID first'),
-                        backgroundColor: colors.warning,
-                      ),
-                    );
-                    return;
-                  }
+                  // TODO: Add PIC selection validation later
+                  // For now, using placeholder picId for frontend development
                   Navigator.pop(ctx);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          AssignerWorkOrderPage(picId: selectedPicId!),
+                          AssignerWorkOrderPage(picId: selectedPicId ?? 1),
                     ),
                   );
                 },

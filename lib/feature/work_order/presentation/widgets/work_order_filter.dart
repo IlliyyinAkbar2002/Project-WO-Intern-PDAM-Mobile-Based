@@ -46,8 +46,9 @@ class _WorkOrderFilterState extends AppStatePage<WorkOrderFilter> {
                       textAlign: TextAlign.center,
                       style: textTheme.displayMedium!.copyWith(
                         color: isActive
-                            ? color.primary[400]
+                            ? const Color(0xFF3ABFEF) // Cyan color from Figma
                             : color.foreground[100],
+                        fontSize: 15,
                       ),
                     ),
                   ),
