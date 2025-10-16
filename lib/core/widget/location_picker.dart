@@ -111,9 +111,11 @@ class _LocationPickerState extends AppStatePage<LocationPicker> {
                   Text(
                     locationInfo,
                     style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+                      fontFamily: 'Roboto',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF2A83C6),
+                      letterSpacing: -0.2,
                     ),
                   ),
                   Row(
@@ -124,9 +126,11 @@ class _LocationPickerState extends AppStatePage<LocationPicker> {
                             ? "Long ${formatCoordinate(_selectedLocation.longitude)}"
                             : "",
                         style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+                          fontFamily: 'Roboto',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF8797AE),
+                          letterSpacing: -0.2,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -135,9 +139,11 @@ class _LocationPickerState extends AppStatePage<LocationPicker> {
                             ? "Lat ${formatCoordinate(_selectedLocation.latitude)}"
                             : "",
                         style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+                          fontFamily: 'Roboto',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF8797AE),
+                          letterSpacing: -0.2,
                         ),
                       ),
                     ],
@@ -152,10 +158,36 @@ class _LocationPickerState extends AppStatePage<LocationPicker> {
                       textEditingController: _searchController,
                       googleAPIKey: googleApiKey,
                       inputDecoration: InputDecoration(
-                        hintText: "Cari Lokasi",
-                        prefixIcon: const Icon(Icons.search),
+                        hintText: "Cari lokasi...",
+                        hintStyle: const TextStyle(
+                          fontFamily: 'Roboto',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF8797AE),
+                          letterSpacing: -0.2,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(6),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFAFBACA),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(6),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFAFBACA),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(6),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF2D499B),
+                            width: 1.5,
+                          ),
                         ),
                       ),
                       debounceTime: 800,

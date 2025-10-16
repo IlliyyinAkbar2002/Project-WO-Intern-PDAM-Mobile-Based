@@ -72,13 +72,22 @@ class _CustomFormState<T> extends AppStatePage<CustomForm<T>> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            widget.labelText,
-            style: textTheme.headlineMedium?.copyWith(
-              color: color.primary[500],
-            ),
-          ),
-          const SizedBox(height: 6),
+          widget.labelText.isNotEmpty
+              ? Text(
+                  widget.labelText,
+                  style: const TextStyle(
+                    fontFamily: 'Roboto',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF2D499B),
+                    letterSpacing: -0.3,
+                    height: 1.67,
+                  ),
+                )
+              : const SizedBox.shrink(),
+          widget.labelText.isNotEmpty
+              ? const SizedBox(height: 6)
+              : const SizedBox.shrink(),
           SizedBox(
             width: double.infinity,
             child: Column(
@@ -113,6 +122,7 @@ class _CustomFormState<T> extends AppStatePage<CustomForm<T>> {
                         },
                         decoration: InputDecoration(
                           hintText: widget.hintText,
+                          hintStyle: const TextStyle(color: Color(0xFF8797AE)),
                           isDense: true,
                           contentPadding: defaultInputPadding,
                           prefixIcon: widget.prefixIcon,
@@ -134,6 +144,25 @@ class _CustomFormState<T> extends AppStatePage<CustomForm<T>> {
                                       },
                                     )
                                   : null),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(6),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFAFBACA),
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(6),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFAFBACA),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(6),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF2D499B),
+                              width: 1.5,
+                            ),
+                          ),
                         ),
                       )
                     : DropdownButtonFormField<T>(
@@ -159,6 +188,20 @@ class _CustomFormState<T> extends AppStatePage<CustomForm<T>> {
                           hintText: widget.hintText,
                           isDense: true,
                           contentPadding: defaultInputPadding,
+                          filled: true,
+                          fillColor: const Color(0xFFE9EFF6),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide.none,
+                          ),
                         ),
                       ),
               ],

@@ -42,7 +42,7 @@ class _CustomFilterDialogState extends AppStatePage<CustomFilterDialog> {
   Widget buildPage(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 22.5, vertical: 13.5),
-      height: MediaQuery.of(context).size.height * 0.85,
+      height: MediaQuery.of(context).size.height * 0.95,
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
@@ -95,7 +95,9 @@ class _CustomFilterDialogState extends AppStatePage<CustomFilterDialog> {
               ),
             ),
           ),
+          const SizedBox(height: 18),
           _buildActionButtons(),
+          const SizedBox(height: 50),
         ],
       ),
     );

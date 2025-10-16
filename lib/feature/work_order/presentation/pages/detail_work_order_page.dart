@@ -160,7 +160,7 @@ class _DetailWorkOrderPageState extends AppStatePage<DetailWorkOrderPage> {
                               : "Work Order Normal",
                         )
                       : null,
-                  body: state is WorkOrderLoading || !isDataLoaded
+                  body: (state is WorkOrderLoading && isDetailMode)
                       ? const Center(child: CircularProgressIndicator())
                       : SingleChildScrollView(
                           padding: const EdgeInsets.all(16.0),

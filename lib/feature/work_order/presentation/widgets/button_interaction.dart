@@ -41,32 +41,60 @@ class _ButtonInteractionState extends AppStatePage<ButtonInteraction> {
               ),
             ],
           )
-        : ElevatedButton(
-            onPressed: widget.isDisabled ? null : widget.onDefaultPressed,
-            child: _buttonText(),
+        : Center(
+            child: Container(
+              width: 180,
+              height: 60,
+              margin: const EdgeInsets.only(top: 16, bottom: 16),
+              child: ElevatedButton(
+                onPressed: widget.isDisabled ? null : widget.onDefaultPressed,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2D499B),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 16,
+                  ),
+                ),
+                child: Text(
+                  _buttonTextString(),
+                  style: const TextStyle(
+                    fontFamily: 'Roboto',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ),
           );
   }
 
-  Widget _buttonText() {
+  String _buttonTextString() {
     switch (widget.status) {
       case 1:
-        return const Text('Belum disetujui');
+        return 'Belum disetujui';
       case 2:
-        return const Text('Disetujui');
+        return 'Disetujui';
       case 3:
-        return const Text('Revisi');
+        return 'Revisi';
       case 4:
-        return const Text('Ditolak');
+        return 'Ditolak';
       case 5:
-        return const Text('Pengecekan');
+        return 'Pengecekan';
       case 6:
-        return const Text('Selesai');
+        return 'Selesai';
       case 7:
-        return const Text('In Progress');
+        return 'In Progress';
       case 8:
-        return const Text('Freeze');
+        return 'Freeze';
       default:
-        return const Text('Ajukan');
+        return 'Ajukan';
     }
   }
 

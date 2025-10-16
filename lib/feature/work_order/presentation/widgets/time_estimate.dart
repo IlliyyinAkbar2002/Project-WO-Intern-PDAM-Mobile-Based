@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_intern_pdam/core/widget/app_state_page.dart';
-import 'package:mobile_intern_pdam/core/widget/custom_form.dart';
 
 class TimeEstimate extends StatefulWidget {
   final bool isOvertime;
@@ -96,95 +95,100 @@ class _TimeEstimateState extends AppStatePage<TimeEstimate> {
   @override
   Widget buildPage(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Container with border
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: color.foreground[400]!),
+            border: Border.all(color: const Color(0xFFAFBACA)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Title
               Text(
-                "Estimasi Waktu WO",
-                style: textTheme.headlineLarge?.copyWith(
-                  color: color.primary[500],
+                widget.isOvertime
+                    ? "Estimasi Waktu WO Lembur"
+                    : "Estimasi Waktu WO Normal",
+                style: const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF2D499B),
+                  letterSpacing: -0.3,
+                  height: 1.6,
                 ),
               ),
+              const SizedBox(height: 16),
+
+              // Mulai row
               Row(
                 children: [
-                  // Pilih Tanggal
                   SizedBox(
                     width: 50,
-                    child: Text("Mulai", style: textTheme.titleMedium),
+                    child: Text(
+                      "Mulai",
+                      style: const TextStyle(
+                        fontFamily: 'Roboto',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF2D3643),
+                        letterSpacing: -0.2,
+                        height: 1.71,
+                      ),
+                    ),
                   ),
+                  const SizedBox(width: 8),
 
                   Expanded(
-                    child: CustomForm(
+                    flex: 3,
+                    child: _buildSmallInput(
                       controller: _dateController,
                       hintText: 'Pilih Tanggal',
-                      labelText: "",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Tanggal tidak boleh kosong';
-                        }
-                        return null;
-                      },
-                      readOnly: true,
-                      onTap: (widget.isReadOnly)
-                          ? null
-                          : () {
-                              _selectDate();
-                            },
+                      onTap: (widget.isReadOnly) ? null : _selectDate,
                     ),
                   ),
 
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
 
-                  // Pilih Jam
                   Expanded(
-                    child: CustomForm(
+                    flex: 2,
+                    child: _buildSmallInput(
                       controller: _timeController,
-                      hintText: 'Pilih Jam',
-                      labelText: "",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Jam tidak boleh kosong';
-                        }
-                        return null;
-                      },
-                      readOnly: true,
-                      onTap: (widget.isReadOnly)
-                          ? null
-                          : () {
-                              _selectTime();
-                            },
+                      hintText: 'Jam',
+                      onTap: (widget.isReadOnly) ? null : _selectTime,
                     ),
                   ),
                 ],
               ),
 
-              // Durasi
+              const SizedBox(height: 15),
+
+              // Durasi row
               Row(
                 children: [
                   SizedBox(
                     width: 50,
-                    child: Text("Durasi", style: textTheme.titleMedium),
+                    child: Text(
+                      "Durasi",
+                      style: const TextStyle(
+                        fontFamily: 'Roboto',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF2D3643),
+                        letterSpacing: -0.2,
+                        height: 1.71,
+                      ),
+                    ),
                   ),
+                  const SizedBox(width: 8),
 
-                  // Input angka durasi
                   Expanded(
-                    child: CustomForm(
+                    child: _buildSmallInput(
                       controller: _durationController,
-                      hintText: 'Durasi',
-                      labelText: "",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Durasi tidak boleh kosong';
-                        }
-                        return null;
-                      },
+                      hintText: '',
                       keyboardType: TextInputType.number,
                       onChanged: (value) {
                         _duration = int.tryParse(value) ?? 0;
@@ -194,95 +198,185 @@ class _TimeEstimateState extends AppStatePage<TimeEstimate> {
                     ),
                   ),
 
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
 
                   Expanded(
+                    flex: 2,
                     child: widget.isOvertime
-                        ? CustomForm(
-                            controller: _durationTypeController,
-                            hintText: 'Jam',
-                            labelText: '',
-                            enabled: false,
-                          )
-                        : CustomForm(
-                            controller: _durationTypeController,
-                            hintText: 'J/H/B',
-                            labelText: '',
-                            inputType: (widget.isReadOnly)
-                                ? InputType.text
-                                : InputType.dropdown,
-                            readOnly: widget.isReadOnly,
-                            dropdownItems: normalDurationOptions
-                                .map(
-                                  (duration) => DropdownMenuItem(
-                                    value: duration,
-                                    child: Text(duration),
-                                  ),
-                                )
-                                .toList(),
-                            dropdownValue: _selectedDurationType.isNotEmpty
-                                ? _selectedDurationType
-                                : null,
-                            onDropdownChanged: (value) {
-                              setState(() {
-                                _selectedDurationType = value!;
-                                _calculateEndDateTime();
-                              });
-                            },
-                          ),
+                        ? _buildDisabledUnitSelector()
+                        : _buildUnitDropdown(),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 15),
 
+              // Selesai row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Selesai", style: textTheme.titleMedium),
                   Text(
-                    (endDateTime != null &&
-                            _duration != 0 &&
-                            _selectedDurationType.isNotEmpty)
-                        ? _formatEndDateTime(endDateTime!)
-                        : "-",
-                    style: textTheme.titleMedium,
-                  ), //dihitung dari tanggal mulai + durasi
+                    "Selesai",
+                    style: const TextStyle(
+                      fontFamily: 'Roboto',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF2D3643),
+                      letterSpacing: -0.2,
+                      height: 1.71,
+                    ),
+                  ),
+                  Flexible(
+                    child: Text(
+                      (endDateTime != null &&
+                              _duration != 0 &&
+                              _selectedDurationType.isNotEmpty)
+                          ? _formatEndDateTime(endDateTime!)
+                          : "-",
+                      style: const TextStyle(
+                        fontFamily: 'Roboto',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF3D4A5C),
+                        letterSpacing: -0.2,
+                        height: 1.71,
+                      ),
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
                 ],
               ),
             ],
           ),
         ),
-        // !widget.isReadOnly ? const SizedBox() : _buildButton(),
-        // Text("${widget.status}")
       ],
     );
   }
 
-  Widget _buildButton() {
-    switch (widget.status) {
-      case 1:
-        return ElevatedButton(
-          onPressed: () {},
-          child: const Text('Belum disetujui'),
-        );
-      case 2:
-        return const Text('Disetujui');
-      case 3:
-        return const Text('Revisi');
-      case 4:
-        return const Text('Ditolak');
-      case 5:
-        return const Text('Pengecekan');
-      case 6:
-        return const Text('Selesai');
-      case 7:
-        return const Text('In Progress');
-      case 8:
-        return const Text('Freeze');
-      default:
-        return const Text('Ajukan');
-    }
+  Widget _buildSmallInput({
+    required TextEditingController controller,
+    required String hintText,
+    VoidCallback? onTap,
+    TextInputType? keyboardType,
+    ValueChanged<String>? onChanged,
+    bool readOnly = true,
+  }) {
+    return Container(
+      height: 32,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: const Color(0xFFDCE0E5)),
+      ),
+      child: TextFormField(
+        controller: controller,
+        readOnly: readOnly,
+        onTap: onTap,
+        keyboardType: keyboardType,
+        onChanged: onChanged,
+        style: const TextStyle(
+          fontFamily: 'Roboto',
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: Color(0xFF14181F),
+          letterSpacing: -0.2,
+        ),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: const TextStyle(
+            fontFamily: 'Roboto',
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF8797AE),
+            letterSpacing: -0.2,
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 4,
+          ),
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUnitDropdown() {
+    return Container(
+      height: 32,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: const Color(0xFFDCE0E5)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: _selectedDurationType.isNotEmpty
+              ? _selectedDurationType
+              : null,
+          hint: const Text(
+            'H/J/B',
+            style: TextStyle(
+              fontFamily: 'Roboto',
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF14181F),
+              letterSpacing: -0.2,
+            ),
+          ),
+          isExpanded: true,
+          icon: const Icon(Icons.arrow_drop_down, size: 20),
+          style: const TextStyle(
+            fontFamily: 'Roboto',
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF14181F),
+            letterSpacing: -0.2,
+          ),
+          items: normalDurationOptions
+              .map(
+                (duration) =>
+                    DropdownMenuItem(value: duration, child: Text(duration)),
+              )
+              .toList(),
+          onChanged: widget.isReadOnly
+              ? null
+              : (value) {
+                  setState(() {
+                    _selectedDurationType = value!;
+                    _durationTypeController.text = value;
+                    _calculateEndDateTime();
+                  });
+                },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDisabledUnitSelector() {
+    return Container(
+      height: 32,
+      decoration: BoxDecoration(
+        color: const Color(0xFFD7DFE9),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: const Color(0xFFDCE0E5)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      alignment: Alignment.center,
+      child: const Text(
+        'Jam',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontFamily: 'Roboto',
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: Color(0xFF14181F),
+          letterSpacing: -0.2,
+        ),
+      ),
+    );
   }
 
   Future<void> _selectDate() async {

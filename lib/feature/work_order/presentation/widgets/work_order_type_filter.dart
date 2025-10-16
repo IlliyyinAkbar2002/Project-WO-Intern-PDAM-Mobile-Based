@@ -28,11 +28,16 @@ class _WorkOrderTypeFilterState extends AppStatePage<WorkOrderTypeFilter> {
             child: GestureDetector(
               onTap: () => widget.onFilterSelected(index),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(vertical: 18),
                 decoration: BoxDecoration(
+                  color: isActive
+                      ? const Color(0xFF2A83C6)
+                      : const Color(0xFFD0E8FA),
                   border: Border(
                     bottom: BorderSide(
-                      color: isActive ? Colors.blue : Colors.transparent,
+                      color: isActive
+                          ? const Color(0xFF2D499B)
+                          : Colors.transparent,
                       width: 2,
                     ),
                   ),
@@ -40,8 +45,14 @@ class _WorkOrderTypeFilterState extends AppStatePage<WorkOrderTypeFilter> {
                 child: Text(
                   widget.filterLabels[index],
                   textAlign: TextAlign.center,
-                  style: textTheme.headlineLarge?.copyWith(
-                    color: isActive ? color.primary[500] : null,
+                  style: TextStyle(
+                    fontFamily: 'Roboto',
+                    fontSize: 18,
+                    fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                    color: isActive
+                        ? const Color(0xFFF7F7F7)
+                        : const Color(0xFF5E718D),
+                    letterSpacing: -0.2,
                   ),
                 ),
               ),
