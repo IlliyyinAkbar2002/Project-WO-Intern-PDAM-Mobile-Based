@@ -8,7 +8,7 @@ import 'package:mobile_intern_pdam/core/utils/auth_storage.dart';
 import 'package:mobile_intern_pdam/core/widget/app_state_page.dart';
 import 'package:mobile_intern_pdam/feature/work_order/presentation/bloc/work_order_bloc.dart';
 import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/landing_page.dart';
-// import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/login.dart';
+import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/login.dart';
 // import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/assignee_page/assignee_work_order_detail_page.dart';
 // import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/detail_work_order_page.dart';
 import 'service_locator.dart' as di;
@@ -54,8 +54,8 @@ class _AppState extends AppStatePage<App> {
       providers: [BlocProvider(create: (_) => di.sl<WorkOrderBloc>())],
       child: MaterialApp(
         theme: ThemeManager.theme,
-        // home: const LoginPage(),
-        home: const LandingPage(),
+        home: const LoginPage(),
+        // home: const LandingPage(),
         debugShowCheckedModeBanner: false,
         themeMode: ThemeMode.light,
       ),

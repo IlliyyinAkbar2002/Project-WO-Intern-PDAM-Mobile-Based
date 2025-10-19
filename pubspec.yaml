@@ -29,6 +29,7 @@ dependencies:
   location: ^8.0.1
   path: ^1.9.1
   retrofit: ^4.7.3
+  flutter_secure_storage: ^9.2.4
 
 dev_dependencies:
   flutter_test:

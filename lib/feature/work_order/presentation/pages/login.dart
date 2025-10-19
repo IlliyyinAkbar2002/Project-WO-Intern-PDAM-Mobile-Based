@@ -42,15 +42,14 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         child: SafeArea(
-          child: SingleChildScrollView(
+          child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 40),
-                _buildWaterPattern(),
-                const SizedBox(height: 40),
+                const Spacer(),
                 _buildLoginCard(),
-                const SizedBox(height: 30),
+                const Spacer(),
                 _buildFooter(),
               ],
             ),
@@ -60,17 +59,10 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildWaterPattern() {
-    return CustomPaint(
-      size: const Size(double.infinity, 200),
-      painter: WaterPatternPainter(),
-    );
-  }
-
   Widget _buildLoginCard() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(32.0),
+      padding: const EdgeInsets.all(28.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24.0),
@@ -86,19 +78,20 @@ class _LoginPageState extends State<LoginPage> {
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             _buildLogo(),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
             _buildCompanyInfo(),
-            const SizedBox(height: 40),
-            _buildUsernameField(),
-            const SizedBox(height: 24),
-            _buildPasswordField(),
             const SizedBox(height: 32),
-            _buildLoginButton(),
+            _buildUsernameField(),
             const SizedBox(height: 20),
-            _buildForgotPasswordLink(),
+            _buildPasswordField(),
             const SizedBox(height: 24),
+            _buildLoginButton(),
+            const SizedBox(height: 16),
+            _buildForgotPasswordLink(),
+            const SizedBox(height: 16),
             _buildRegisterLink(),
           ],
         ),
@@ -352,8 +345,9 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildFooter() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           TextButton.icon(
             onPressed: _testConnection,
@@ -363,7 +357,7 @@ class _LoginPageState extends State<LoginPage> {
               style: TextStyle(color: Color(0xFF4DD0E1), fontSize: 12),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 4),
           const Text(
             '© 2024 PDAM Surya Sembada. Semua hak dilindungi.',
             style: TextStyle(color: Color(0xFFB0BEC5), fontSize: 12),
@@ -495,7 +489,7 @@ class _LoginPageState extends State<LoginPage> {
 
       // Test root endpoint
       print('🧪 Testing connection to API server...');
-      final response = await dio.get('http://172.30.4.100:8000/api');
+      final response = await dio.get('http://192.168.1.5:8000/api/ping');
 
       print('✅ Connection successful!');
       print('📥 Response: ${response.data}');
@@ -518,7 +512,7 @@ class _LoginPageState extends State<LoginPage> {
       if (e.type == DioExceptionType.connectionTimeout) {
         errorMsg = 'Timeout - Server tidak merespon';
       } else if (e.type == DioExceptionType.connectionError) {
-        errorMsg = 'Error - Tidak dapat terhubung ke http://172.30.4.100:8000';
+        errorMsg = 'Error - Tidak dapat terhubung ke http://192.168.1.5:8000';
       }
 
       if (!mounted) return;
@@ -532,53 +526,4 @@ class _LoginPageState extends State<LoginPage> {
       );
     }
   }
-}
-
-class WaterPatternPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF4DD0E1).withOpacity(0.3)
-      ..style = PaintingStyle.fill;
-
-    // Draw wave patterns
-    final path = Path();
-    path.moveTo(0, size.height * 0.7);
-
-    // First wave
-    path.quadraticBezierTo(
-      size.width * 0.25,
-      size.height * 0.5,
-      size.width * 0.5,
-      size.height * 0.7,
-    );
-
-    // Second wave
-    path.quadraticBezierTo(
-      size.width * 0.75,
-      size.height * 0.9,
-      size.width,
-      size.height * 0.7,
-    );
-
-    path.lineTo(size.width, size.height);
-    path.lineTo(0, size.height);
-    path.close();
-
-    canvas.drawPath(path, paint);
-
-    // Draw scattered dots
-    final dotPaint = Paint()
-      ..color = const Color(0xFF4DD0E1).withOpacity(0.2)
-      ..style = PaintingStyle.fill;
-
-    for (int i = 0; i < 20; i++) {
-      final x = (i * 37.0) % size.width;
-      final y = (i * 23.0) % size.height;
-      canvas.drawCircle(Offset(x, y), 3, dotPaint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
