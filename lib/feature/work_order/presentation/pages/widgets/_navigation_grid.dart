@@ -16,7 +16,7 @@ class _NavigationGrid extends StatelessWidget {
     final items = [
       _NavigationItem(
         icon: Icons.calendar_month_outlined,
-        label: 'Agenda Meeting',
+        label: 'Meeting Agenda',
         onTap: () {
           if (selectedPicId == null) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -37,10 +37,21 @@ class _NavigationGrid extends StatelessWidget {
         },
       ),
       _NavigationItem(
+        icon: Icons.check_circle_outline,
+        label: 'Approval',
+        onTap: () {
+          // TODO: Navigate to approval page
+        },
+      ),
+      _NavigationItem(
         icon: Icons.list_alt_outlined,
         label: 'Tasks',
         onTap: () {
-          // Show tasks modal bottom sheet with animation and dimmed backdrop
+          // Get user role to determine which bottom sheet to show
+          final user = AuthStorage.getUser();
+          final roleId = user?['role_id'] as int?;
+
+          // Show role-specific tasks modal bottom sheet
           showModalBottomSheet(
             context: context,
             isScrollControlled: false,
@@ -48,66 +59,73 @@ class _NavigationGrid extends StatelessWidget {
             backgroundColor: Colors.transparent,
             barrierColor: Colors.black.withOpacity(0.3),
             builder: (ctx) {
-              return _TasksBottomSheet(
-                onWorkOrderKeluar: () {
-                  // TODO: Add PIC selection validation later
-                  // For now, using placeholder picId for frontend development
-                  Navigator.pop(ctx);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          AssignerWorkOrderPage(picId: selectedPicId ?? 1),
-                    ),
-                  );
-                },
-                onWorkOrderMasuk: () {
-                  if (selectedUserId == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Please select User ID first'),
-                        backgroundColor: colors.warning,
+              // Manajer role (role_id: 2) - Show Manajer tasks
+              if (roleId == 2) {
+                return _TasksBottomSheetManajer(
+                  onWorkOrderKeluar: () {
+                    // TODO: Add PIC selection validation later
+                    // For now, using placeholder picId for frontend development
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            AssignerWorkOrderPage(picId: selectedPicId ?? 1),
                       ),
                     );
-                    return;
-                  }
-                  Navigator.pop(ctx);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          AssigneeWorkOrderPage(userId: selectedUserId!),
-                    ),
-                  );
-                },
-                onItSupport: () {
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('IT Support coming soon'),
-                      backgroundColor: colors.primary[600],
-                    ),
-                  );
-                },
-                onKuponEbbm: () {
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Kupon E-BBM coming soon'),
-                      backgroundColor: colors.primary[600],
-                    ),
-                  );
-                },
-                onSppd: () {
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('SPPD coming soon'),
-                      backgroundColor: colors.primary[600],
-                    ),
-                  );
-                },
-              );
+                  },
+                  onWorkOrderMasuk: () {
+                    if (selectedUserId == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Please select User ID first'),
+                          backgroundColor: colors.warning,
+                        ),
+                      );
+                      return;
+                    }
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            AssigneeWorkOrderPage(userId: selectedUserId!),
+                      ),
+                    );
+                  },
+                  onItSupport: () {
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('IT Support coming soon'),
+                        backgroundColor: colors.primary[600],
+                      ),
+                    );
+                  },
+                  onKuponEbbm: () {
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Kupon E-BBM coming soon'),
+                        backgroundColor: colors.primary[600],
+                      ),
+                    );
+                  },
+                  onSppd: () {
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('SPPD coming soon'),
+                        backgroundColor: colors.primary[600],
+                      ),
+                    );
+                  },
+                );
+              }
+              // Users role (role_id: 3) - Show Users tasks
+              else {
+                return _TasksBottomSheetUsers(selectedUserId: selectedUserId);
+              }
             },
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.only(
@@ -119,17 +137,10 @@ class _NavigationGrid extends StatelessWidget {
         },
       ),
       _NavigationItem(
-        icon: Icons.approval_outlined,
-        label: 'Approval',
-        onTap: () {
-          // TODO: Navigate to pending page
-        },
-      ),
-      _NavigationItem(
-        icon: Icons.check_circle_outline,
+        icon: Icons.people_outline,
         label: 'Attendance',
         onTap: () {
-          // TODO: Navigate to completed page
+          // TODO: Navigate to attendance page
         },
       ),
       _NavigationItem(
@@ -248,15 +259,15 @@ class _NavigationGridItem extends StatelessWidget {
   }
 }
 
-/// Bottom sheet shown when user taps on "Tasks" grid item
-class _TasksBottomSheet extends StatelessWidget {
+/// Bottom sheet shown when Manajer taps on "Tasks" grid item
+class _TasksBottomSheetManajer extends StatelessWidget {
   final VoidCallback onWorkOrderKeluar;
   final VoidCallback onWorkOrderMasuk;
   final VoidCallback onItSupport;
   final VoidCallback onKuponEbbm;
   final VoidCallback onSppd;
 
-  const _TasksBottomSheet({
+  const _TasksBottomSheetManajer({
     required this.onWorkOrderKeluar,
     required this.onWorkOrderMasuk,
     required this.onItSupport,
@@ -359,6 +370,134 @@ class _TaskMenuItem extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Bottom sheet shown when Users tap on "Tasks" grid item
+class _TasksBottomSheetUsers extends StatelessWidget {
+  final int? selectedUserId;
+
+  const _TasksBottomSheetUsers({required this.selectedUserId});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColor>()!;
+
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.5,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 12,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 8),
+            // Grabber handle
+            Container(
+              width: 44,
+              height: 5,
+              decoration: BoxDecoration(
+                color: const Color(0xFFCBD5E1), // gray-300
+                borderRadius: BorderRadius.circular(100),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                children: [
+                  _TaskMenuItem(
+                    label: 'Jurnal',
+                    onTap: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Jurnal coming soon'),
+                          backgroundColor: colors.primary[600],
+                        ),
+                      );
+                    },
+                  ),
+                  _TaskMenuItem(
+                    label: 'Work Order',
+                    onTap: () {
+                      if (selectedUserId == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Please select User ID first'),
+                            backgroundColor: colors.warning,
+                          ),
+                        );
+                        return;
+                      }
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              AssigneeWorkOrderPage(userId: selectedUserId!),
+                        ),
+                      );
+                    },
+                  ),
+                  _TaskMenuItem(
+                    label: 'IT Support',
+                    onTap: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('IT Support coming soon'),
+                          backgroundColor: colors.primary[600],
+                        ),
+                      );
+                    },
+                  ),
+                  _TaskMenuItem(
+                    label: 'Kupon E-BBM',
+                    onTap: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Kupon E-BBM coming soon'),
+                          backgroundColor: colors.primary[600],
+                        ),
+                      );
+                    },
+                  ),
+                  _TaskMenuItem(
+                    label: 'SPPD',
+                    onTap: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('SPPD coming soon'),
+                          backgroundColor: colors.primary[600],
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

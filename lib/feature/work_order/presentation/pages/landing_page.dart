@@ -3,6 +3,8 @@ import 'package:mobile_intern_pdam/config/theme/app_color.dart';
 import 'package:mobile_intern_pdam/core/widget/app_state_page.dart';
 import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/assignee_page/assignee_work_order_page.dart';
 import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/assigner_page/assigner_work_order_page.dart';
+import 'package:mobile_intern_pdam/core/utils/auth_storage.dart';
+import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/login.dart';
 
 part 'widgets/_landing_page_header.dart';
 part 'widgets/_landing_page_body.dart';
@@ -11,6 +13,78 @@ part 'widgets/_navigation_card.dart';
 part 'widgets/_stats_card.dart';
 part 'widgets/_role_selection_card.dart';
 part 'widgets/_navigation_grid.dart';
+part 'widgets/_navigation_list.dart';
+part 'widgets/_attendance_card.dart';
+
+// Expose the header widget for other landing pages to use
+class LandingPageHeaderWidget extends StatelessWidget {
+  const LandingPageHeaderWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const _LandingPageHeader();
+  }
+}
+
+// Expose the navigation grid for other landing pages to use
+class LandingPageNavigationGrid extends StatelessWidget {
+  final int? selectedPicId;
+  final int? selectedUserId;
+
+  const LandingPageNavigationGrid({
+    super.key,
+    this.selectedPicId,
+    this.selectedUserId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _NavigationGrid(
+      selectedPicId: selectedPicId,
+      selectedUserId: selectedUserId,
+    );
+  }
+}
+
+// Expose the stats card for other landing pages to use
+class LandingPageStatsCard extends StatelessWidget {
+  const LandingPageStatsCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _StatsCard();
+  }
+}
+
+// Expose the attendance card for other landing pages to use
+class LandingPageAttendanceCard extends StatelessWidget {
+  const LandingPageAttendanceCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const _AttendanceCard();
+  }
+}
+
+// Expose the navigation list for users role landing pages
+class LandingPageNavigationList extends StatelessWidget {
+  final int? selectedPicId;
+  final int? selectedUserId;
+
+  const LandingPageNavigationList({
+    super.key,
+    this.selectedPicId,
+    this.selectedUserId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _NavigationList(
+      selectedPicId: selectedPicId,
+      selectedUserId: selectedUserId,
+    );
+  }
+}
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -20,9 +94,6 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends AppStatePage<LandingPage> {
-  int? _selectedPicId;
-  int? _selectedUserId;
-
   @override
   Widget buildPage(BuildContext context) {
     return Scaffold(
@@ -30,15 +101,13 @@ class _LandingPageState extends AppStatePage<LandingPage> {
       body: SafeArea(
         child: Column(
           children: [
-            _LandingPageHeader(),
+            const _LandingPageHeader(),
             Expanded(
               child: _LandingPageBody(
-                selectedPicId: _selectedPicId,
-                selectedUserId: _selectedUserId,
-                onPicIdChanged: (value) =>
-                    setState(() => _selectedPicId = value),
-                onUserIdChanged: (value) =>
-                    setState(() => _selectedUserId = value),
+                selectedPicId: null,
+                selectedUserId: null,
+                onPicIdChanged: (value) => null,
+                onUserIdChanged: (value) => null,
               ),
             ),
           ],

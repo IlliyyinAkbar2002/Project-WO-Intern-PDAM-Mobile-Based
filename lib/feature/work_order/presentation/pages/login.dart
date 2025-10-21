@@ -4,7 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:mobile_intern_pdam/core/resource/data_state.dart';
 import 'package:mobile_intern_pdam/core/utils/auth_storage.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/data_source/remote/auth_remote_data_source.dart';
-import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/landing_page.dart';
+import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/landing_page.dart'
+    as admin;
+import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/manajer/landing_page.dart';
+import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/users/landing_page.dart'
+    as user;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -42,16 +46,25 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         child: SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Spacer(),
-                _buildLoginCard(),
-                const Spacer(),
-                _buildFooter(),
-              ],
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight:
+                    MediaQuery.of(context).size.height -
+                    MediaQuery.of(context).padding.top -
+                    MediaQuery.of(context).padding.bottom,
+              ),
+              child: IntrinsicHeight(
+                child: Column(
+                  children: [
+                    const Spacer(),
+                    _buildLoginCard(),
+                    const Spacer(),
+                    _buildFooter(),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
@@ -406,7 +419,13 @@ class _LoginPageState extends State<LoginPage> {
 
           // Navigate to main page
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const LandingPage()),
+            MaterialPageRoute(
+              builder: (context) => authResponse.user?['role_id'] == 2
+                  ? const ManajerLandingPage()
+                  : authResponse.user?['role_id'] == 3
+                  ? const user.LandingPage()
+                  : const admin.LandingPage(),
+            ),
           );
         } else if (result is DataFailed) {
           // Handle login failure
@@ -489,7 +508,7 @@ class _LoginPageState extends State<LoginPage> {
 
       // Test root endpoint
       print('🧪 Testing connection to API server...');
-      final response = await dio.get('http://192.168.1.5:8000/api/ping');
+      final response = await dio.get('http://172.30.4.100:8000/api/ping');
 
       print('✅ Connection successful!');
       print('📥 Response: ${response.data}');

@@ -3,6 +3,53 @@ part of '../landing_page.dart';
 class _LandingPageHeader extends StatelessWidget {
   const _LandingPageHeader();
 
+  String _getEmployeeName() {
+    final user = AuthStorage.getUser();
+    return user?['employee']?['name'] ?? 'Unknown User';
+  }
+
+  String _getEmployeeId() {
+    final user = AuthStorage.getUser();
+    return user?['employee']?['employee_id'] ?? '';
+  }
+
+  void _handleLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text(
+            'Logout',
+            style: Theme.of(dialogContext).textTheme.titleLarge?.copyWith(
+              color: Theme.of(dialogContext).extension<AppColor>()!.danger,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          content: const Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                AuthStorage.clearAuth();
+                Navigator.of(dialogContext).pop();
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                );
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xffff574d),
+              ),
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColor>()!;
@@ -39,24 +86,56 @@ class _LandingPageHeader extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Work Order System',
-                      style: textTheme.titleLarge?.copyWith(
-                        color: colors.background[100],
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
+                      _getEmployeeName(),
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: colors.background[100]!.withOpacity(0.9),
+                        fontSize: 14,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'Demo Mode',
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: colors.background[100]!.withOpacity(0.85),
-                        fontSize: 14,
+                    if (_getEmployeeId().isNotEmpty)
+                      Text(
+                        _getEmployeeId(),
+                        style: textTheme.bodySmall?.copyWith(
+                          color: colors.background[100]!.withOpacity(0.8),
+                          fontSize: 12,
+                        ),
+                      ),
+                    const SizedBox(height: 12),
+                    // Logout Button - matching Figma design
+                    Container(
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: const Color(0xffff574d),
+                        borderRadius: BorderRadius.circular(9999),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => _handleLogout(context),
+                          borderRadius: BorderRadius.circular(9999),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 3.5,
+                            ),
+                            child: const Text(
+                              'Logout',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                height: 1.0,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 16),
               Column(
                 children: [
                   Stack(
@@ -64,64 +143,42 @@ class _LandingPageHeader extends StatelessWidget {
                       Container(
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: colors.background[100]!,
-                            width: 4,
+                            color: colors.background[100]!.withOpacity(0.3),
+                            width: 2,
                           ),
-                          borderRadius: BorderRadius.circular(40),
+                          borderRadius: BorderRadius.circular(32),
                         ),
                         child: CircleAvatar(
-                          radius: 36,
+                          radius: 32,
                           backgroundColor: colors.primary[300],
                           child: Icon(
                             Icons.person,
-                            size: 40,
+                            size: 36,
                             color: colors.background[100],
                           ),
                         ),
                       ),
                       Positioned(
-                        top: 0,
-                        right: 0,
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Container(
-                              width: 28,
-                              height: 28,
-                              decoration: BoxDecoration(
-                                color: colors.background[100],
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.08),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Icon(
-                                Icons.notifications_none_rounded,
-                                size: 16,
-                                color: colors.primary[500],
-                              ),
+                        top: -4,
+                        right: -4,
+                        child: Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: const Color(0xffff574d),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: colors.primary[500]!,
+                              width: 2,
                             ),
-                            Positioned(
-                              top: 2,
-                              right: 2,
-                              child: Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: Colors.red[500],
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: colors.background[100]!,
-                                    width: 1.5,
-                                  ),
-                                ),
-                              ),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.notifications,
+                              size: 12,
+                              color: Colors.white,
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ],
