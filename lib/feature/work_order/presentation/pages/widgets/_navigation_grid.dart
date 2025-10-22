@@ -48,7 +48,7 @@ class _NavigationGrid extends StatelessWidget {
         label: 'Tasks',
         onTap: () {
           // Get user role to determine which bottom sheet to show
-          final user = AuthStorage.getUser();
+          final user = AuthStorage.getUserSync();
           final roleId = user?['role_id'] as int?;
 
           // Show role-specific tasks modal bottom sheet

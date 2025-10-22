@@ -8,7 +8,8 @@ class LocationTypeRemoteDataSource extends RemoteDatasource {
 
   Future<DataState<List<LocationTypeModel>>> fetchLocationTypes() async {
     try {
-      final response = await dio.get('/jenis-lokasi');
+      // Use parent class's get() method which includes auth headers
+      final response = await get(path: '/jenis-lokasi');
       final data = response.data
           .map<LocationTypeModel>((json) => LocationTypeModel.fromMap(json))
           .toList();
@@ -25,7 +26,8 @@ class LocationTypeRemoteDataSource extends RemoteDatasource {
 
   Future<DataState<LocationTypeModel>> fetchLocationTypeDetail(int id) async {
     try {
-      final response = await dio.get('/jenis-lokasi/$id');
+      // Use parent class's get() method which includes auth headers
+      final response = await get(path: '/jenis-lokasi/$id');
       final data = LocationTypeModel.fromMap(response.data);
       return DataSuccess(data);
     } catch (e) {

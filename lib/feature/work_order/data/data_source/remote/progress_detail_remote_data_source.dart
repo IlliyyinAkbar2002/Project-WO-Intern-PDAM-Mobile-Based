@@ -10,8 +10,9 @@ class ProgressDetailRemoteDataSource extends RemoteDatasource {
     int workOrderProgressId,
   ) async {
     try {
-      final response = await dio.get(
-        '/detail-progress',
+      // Use parent class's get() method which includes auth headers
+      final response = await get(
+        path: '/detail-progress',
         queryParameters: {'progress_workorder_id': workOrderProgressId},
       );
       if (response.data is Map<String, dynamic>) {
@@ -40,7 +41,8 @@ class ProgressDetailRemoteDataSource extends RemoteDatasource {
     int id,
   ) async {
     try {
-      final response = await dio.get('/detail-progress/$id');
+      // Use parent class's get() method which includes auth headers
+      final response = await get(path: '/detail-progress/$id');
       final data = ProgressDetailModel.fromMap(response.data);
       return DataSuccess(data);
     } catch (e) {
@@ -57,8 +59,9 @@ class ProgressDetailRemoteDataSource extends RemoteDatasource {
     ProgressDetailModel progressDetail,
   ) async {
     try {
-      final response = await dio.put(
-        '/detail-progress/${progressDetail.id}',
+      // Use parent class's put() method which includes auth headers
+      final response = await put(
+        path: '/detail-progress/${progressDetail.id}',
         data: progressDetail.toMap(),
       );
       final data = ProgressDetailModel.fromMap(response.data);

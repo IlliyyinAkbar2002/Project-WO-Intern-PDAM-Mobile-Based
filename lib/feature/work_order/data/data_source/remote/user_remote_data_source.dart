@@ -8,7 +8,8 @@ class UserRemoteDataSource extends RemoteDatasource {
 
   Future<DataState<List<UserModel>>> fetchUsers() async {
     try {
-      final response = await dio.get('/user');
+      // Use parent class's get() method which includes auth headers
+      final response = await get(path: '/user');
       final data = response.data
           .map<UserModel>((json) => UserModel.fromMap(json))
           .toList();
@@ -25,7 +26,8 @@ class UserRemoteDataSource extends RemoteDatasource {
 
   Future<DataState<UserModel>> fetchUserDetail(int id) async {
     try {
-      final response = await dio.get('/user/$id');
+      // Use parent class's get() method which includes auth headers
+      final response = await get(path: '/user/$id');
       final data = UserModel.fromMap(response.data);
       return DataSuccess(data);
     } catch (e) {

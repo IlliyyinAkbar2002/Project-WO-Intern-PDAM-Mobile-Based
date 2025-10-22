@@ -10,8 +10,9 @@ class FormRemoteDataSource extends RemoteDatasource {
     int workOrderTypeId,
   ) async {
     try {
-      final response = await dio.get(
-        '/detail-form',
+      // Use parent class's get() method which includes auth headers
+      final response = await get(
+        path: '/detail-form',
         queryParameters: {'jenis_workorder_id': workOrderTypeId},
       );
       if (response.data is Map<String, dynamic>) {

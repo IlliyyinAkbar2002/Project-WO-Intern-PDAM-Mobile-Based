@@ -7,7 +7,6 @@ import 'package:mobile_intern_pdam/core/utils/app_snackbar.dart';
 import 'package:mobile_intern_pdam/core/utils/auth_storage.dart';
 import 'package:mobile_intern_pdam/core/widget/app_state_page.dart';
 import 'package:mobile_intern_pdam/feature/work_order/presentation/bloc/work_order_bloc.dart';
-import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/landing_page.dart';
 import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/login.dart';
 // import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/assignee_page/assignee_work_order_detail_page.dart';
 // import 'package:mobile_intern_pdam/feature/work_order/presentation/pages/detail_work_order_page.dart';
@@ -26,8 +25,12 @@ void main() async {
       // No-op: AppConfig uses safe fallbacks when dotenv isn't initialized
     }
 
-    // Set up auth token getter for API calls
-    RemoteDatasource.setAuthTokenGetter(() => AuthStorage.getToken());
+    // Initialize auth storage to load token from secure storage
+    await AuthStorage.initialize();
+    print("✅ Auth storage initialized");
+
+    // Set up auth token getter for API calls (using synchronous getter)
+    RemoteDatasource.setAuthTokenGetter(() => AuthStorage.getTokenSync());
 
     await di.init();
     print("🎉 Dependency berhasil diinisialisasi!");

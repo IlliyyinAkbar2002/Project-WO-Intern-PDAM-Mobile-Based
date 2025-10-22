@@ -399,12 +399,14 @@ class _LoginPageState extends State<LoginPage> {
         if (result is DataSuccess) {
           final authResponse = result.data!;
 
-          // Save token and user data
+          // Save token and user data (await to ensure persistence)
           if (authResponse.token != null) {
-            AuthStorage.saveToken(authResponse.token!);
+            await AuthStorage.saveToken(authResponse.token!);
+            print('🔐 Token saved: ${authResponse.token!.substring(0, 10)}...');
           }
           if (authResponse.user != null) {
-            AuthStorage.saveUser(authResponse.user!);
+            await AuthStorage.saveUser(authResponse.user!);
+            print('👤 User saved: ${authResponse.user!['email']}');
           }
 
           // Show success message

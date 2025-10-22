@@ -17,8 +17,9 @@ class WorkOrderProgressRemoteDataSource extends RemoteDatasource {
     int workOrderId,
   ) async {
     try {
-      final response = await dio.get(
-        '/progress-workorder',
+      // Use parent class's get() method which includes auth headers
+      final response = await get(
+        path: '/progress-workorder',
         queryParameters: {'workorder_id': workOrderId},
       );
       if (response.data is Map<String, dynamic>) {
@@ -47,7 +48,8 @@ class WorkOrderProgressRemoteDataSource extends RemoteDatasource {
     int id,
   ) async {
     try {
-      final response = await dio.get('/progress-workorder/$id');
+      // Use parent class's get() method which includes auth headers
+      final response = await get(path: '/progress-workorder/$id');
       final data = WorkOrderProgressModel.fromMap(response.data);
       return DataSuccess(data);
     } catch (e) {
@@ -191,14 +193,11 @@ class WorkOrderProgressRemoteDataSource extends RemoteDatasource {
         "📤 Sending files: ${formData.files.map((e) => e.key).toList()}",
       );
 
-      final response = await dio.post(
-        '/progress-workorder/${workOrderProgress.id}',
+      // Use parent class's post() method which includes auth headers
+      final response = await post(
+        path: '/progress-workorder/${workOrderProgress.id}',
         data: formData,
-        options: Options(
-          contentType: 'multipart/form-data',
-          headers: {'Accept': 'application/json'},
-          validateStatus: (status) => status != null && status < 500,
-        ),
+        contentType: ContentType.multipart,
       );
 
       final data = WorkOrderProgressModel.fromMap(response.data);

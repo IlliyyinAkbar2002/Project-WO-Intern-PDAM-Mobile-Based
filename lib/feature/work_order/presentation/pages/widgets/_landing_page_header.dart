@@ -4,12 +4,12 @@ class _LandingPageHeader extends StatelessWidget {
   const _LandingPageHeader();
 
   String _getEmployeeName() {
-    final user = AuthStorage.getUser();
+    final user = AuthStorage.getUserSync();
     return user?['employee']?['name'] ?? 'Unknown User';
   }
 
   String _getEmployeeId() {
-    final user = AuthStorage.getUser();
+    final user = AuthStorage.getUserSync();
     return user?['employee']?['employee_id'] ?? '';
   }
 
@@ -32,8 +32,8 @@ class _LandingPageHeader extends StatelessWidget {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
-                AuthStorage.clearAuth();
+              onPressed: () async {
+                await AuthStorage.clearAuth();
                 Navigator.of(dialogContext).pop();
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (context) => const LoginPage()),

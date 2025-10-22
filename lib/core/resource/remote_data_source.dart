@@ -110,6 +110,10 @@ class RemoteDatasource {
   Map<String, dynamic> headers({ContentType? contentType}) {
     try {
       final token = authTokenGetter();
+      DebugLog.info(
+        message:
+            '🔑 Auth token for API request: ${token != null && token.isNotEmpty ? "EXISTS (${token.substring(0, 10)}...)" : "NULL/EMPTY"}',
+      );
       return {
         'Content-Type': contentType == null || contentType == ContentType.json
             ? 'application/json'
@@ -121,6 +125,7 @@ class RemoteDatasource {
       };
     } catch (e) {
       // If authTokenGetter not set, return headers without auth
+      DebugLog.warning(message: '⚠️ Failed to get auth token: $e');
       return {
         'Content-Type': contentType == null || contentType == ContentType.json
             ? 'application/json'

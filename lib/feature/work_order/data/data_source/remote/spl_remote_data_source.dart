@@ -8,7 +8,8 @@ class SplRemoteDataSource extends RemoteDatasource {
 
   Future<DataState<List<SplModel>>> fetchSpls() async {
     try {
-      final response = await dio.get('/lembur-spl');
+      // Use parent class's get() method which includes auth headers
+      final response = await get(path: '/lembur-spl');
       final data = response.data['data']
           .map<SplModel>((json) => SplModel.fromMap(json))
           .toList();
@@ -25,7 +26,8 @@ class SplRemoteDataSource extends RemoteDatasource {
 
   Future<DataState<SplModel>> fetchSplDetail(int id) async {
     try {
-      final response = await dio.get('/lembur-spl/$id');
+      // Use parent class's get() method which includes auth headers
+      final response = await get(path: '/lembur-spl/$id');
       final data = SplModel.fromMap(response.data);
       return DataSuccess(data);
     } catch (e) {
@@ -40,8 +42,9 @@ class SplRemoteDataSource extends RemoteDatasource {
 
   Future<DataState<SplModel>> updateSpl(SplModel spl) async {
     try {
-      final response = await dio.put(
-        '/lembur-spl/${spl.id}',
+      // Use parent class's put() method which includes auth headers
+      final response = await put(
+        path: '/lembur-spl/${spl.id}',
         data: spl.toMap(),
       );
       final data = SplModel.fromMap(response.data);

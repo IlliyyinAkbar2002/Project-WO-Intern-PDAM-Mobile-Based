@@ -34,8 +34,9 @@ class WorkOrderRemoteDataSource extends RemoteDatasource {
         if (search != null) 'search': search,
       };
 
-      final response = await dio.get(
-        '/workorder',
+      // Use parent class's get() method which includes auth headers
+      final response = await get(
+        path: '/workorder',
         queryParameters: queryParameters,
       );
       final data = response.data['data']
@@ -49,82 +50,86 @@ class WorkOrderRemoteDataSource extends RemoteDatasource {
         currentPage: currentPage,
       );
     } catch (e) {
-      return DataFailed(DioException(
-        error: e,
-        requestOptions: RequestOptions(path: '/workorder'),
-      ));
+      return DataFailed(
+        DioException(
+          error: e,
+          requestOptions: RequestOptions(path: '/workorder'),
+        ),
+      );
     }
   }
 
   Future<DataState<WorkOrderModel>> fetchWorkOrderDetail(int id) async {
     try {
-      final response = await dio.get('/workorder/$id'); // Perbaikan di sini
+      // Use parent class's get() method which includes auth headers
+      final response = await get(path: '/workorder/$id');
       final data = WorkOrderModel.fromMap(response.data);
       return DataSuccess(data);
     } catch (e) {
-      return DataFailed(DioException(
-        error: e,
-        requestOptions: RequestOptions(path: '/workorder/$id'),
-      ));
+      return DataFailed(
+        DioException(
+          error: e,
+          requestOptions: RequestOptions(path: '/workorder/$id'),
+        ),
+      );
     }
   }
 
   Future<DataState<WorkOrderModel>> createWorkOrder(
-      WorkOrderModel workOrder) async {
+    WorkOrderModel workOrder,
+  ) async {
     try {
       print("📤 Mengirim request ke API: ${dio.options.baseUrl}/workorder");
       print("📤 Data yang dikirim: ${workOrder.toMap()}");
 
-      final response = await dio.post(
-        '/workorder',
-        data: workOrder.toMap(),
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            "X-Requested-With": "XMLHttpRequest",
-          },
-          followRedirects: false,
-          validateStatus: (status) => status! < 500,
-        ),
-      );
+      // Use parent class's post() method which includes auth headers
+      final response = await post(path: '/workorder', data: workOrder.toMap());
       print("📥 Response: ${response.statusCode} - ${response.data}");
       final data = WorkOrderModel.fromMap(response.data);
       return DataSuccess(data);
     } catch (e) {
-      return DataFailed(DioException(
-        error: e,
-        requestOptions: RequestOptions(path: '/workorder'),
-      ));
+      return DataFailed(
+        DioException(
+          error: e,
+          requestOptions: RequestOptions(path: '/workorder'),
+        ),
+      );
     }
   }
 
   Future<DataState<WorkOrderModel>> updateWorkOrder(
-      WorkOrderModel workOrder) async {
+    WorkOrderModel workOrder,
+  ) async {
     try {
-      final response = await dio.put(
-        '/workorder/${workOrder.id}', // Perbaikan di sini
+      // Use parent class's put() method which includes auth headers
+      final response = await put(
+        path: '/workorder/${workOrder.id}',
         data: workOrder.toMap(),
       );
       final data = WorkOrderModel.fromMap(response.data);
       return DataSuccess(data);
     } catch (e) {
-      return DataFailed(DioException(
-        error: e,
-        requestOptions: RequestOptions(path: '/workorder/${workOrder.id}'),
-      ));
+      return DataFailed(
+        DioException(
+          error: e,
+          requestOptions: RequestOptions(path: '/workorder/${workOrder.id}'),
+        ),
+      );
     }
   }
 
   Future<DataState<void>> deleteWorkOrder(int id) async {
     try {
-      await dio.delete('/workorder/$id'); // Perbaikan di sini
+      // Use parent class's delete() method which includes auth headers
+      await delete(path: '/workorder/$id');
       return const DataSuccess(null);
     } catch (e) {
-      return DataFailed(DioException(
-        error: e,
-        requestOptions: RequestOptions(path: '/workorder/$id'),
-      ));
+      return DataFailed(
+        DioException(
+          error: e,
+          requestOptions: RequestOptions(path: '/workorder/$id'),
+        ),
+      );
     }
   }
 }
