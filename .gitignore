@@ -48,6 +48,7 @@ MIGRATION_SUMMARY.md
 POSTGRESQL_SETUP.md
 
 test
+note.txt
 
 # Environment files
 .env
