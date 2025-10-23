@@ -21,6 +21,9 @@ class EmployeeModel extends EmployeeEntity {
   String toJson() => json.encode(toMap());
 
   factory EmployeeModel.fromMap(Map<String, dynamic> map) {
+    print("🔧 EmployeeModel.fromMap received: $map");
+    print("🔧 EmployeeModel.fromMap keys: ${map.keys}");
+    print("🔧 nama value: ${map['nama']}, nip value: ${map['nip']}");
     return EmployeeModel(
       id: map['id'],
       name: map['nama'],

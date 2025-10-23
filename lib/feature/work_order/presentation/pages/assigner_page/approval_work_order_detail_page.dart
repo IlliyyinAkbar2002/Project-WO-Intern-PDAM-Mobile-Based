@@ -24,18 +24,21 @@ class _ApprovalWorkOrderDetailPageState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(title: 'Detail SPL'),
-      body: Column(
-        children: [
-          DetailWorkOrderPage(
-            isOvertime: true,
-            workOrderId: widget.workOrderId,
-            enableInnerScroll: false,
-          ),
-          ButtonInteraction(
-            status: 1,
-            // onPressed: _onSubmit,
-          ),
-        ],
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            DetailWorkOrderPage(
+              isOvertime: true,
+              workOrderId: widget.workOrderId,
+              enableInnerScroll: false,
+            ),
+            ButtonInteraction(
+              status: 1,
+              // onPressed: _onSubmit,
+            ),
+          ],
+        ),
       ),
     );
   }

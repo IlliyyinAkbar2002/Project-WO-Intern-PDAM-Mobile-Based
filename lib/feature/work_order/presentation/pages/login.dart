@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_intern_pdam/config/app_config.dart';
 import 'package:mobile_intern_pdam/core/resource/data_state.dart';
 import 'package:mobile_intern_pdam/core/utils/auth_storage.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/data_source/remote/auth_remote_data_source.dart';
@@ -510,7 +511,7 @@ class _LoginPageState extends State<LoginPage> {
 
       // Test root endpoint
       print('🧪 Testing connection to API server...');
-      final response = await dio.get('http://172.30.4.100:8000/api/ping');
+      final response = await dio.get('${AppConfig.backendDomain}/api/ping');
 
       print('✅ Connection successful!');
       print('📥 Response: ${response.data}');
@@ -533,7 +534,7 @@ class _LoginPageState extends State<LoginPage> {
       if (e.type == DioExceptionType.connectionTimeout) {
         errorMsg = 'Timeout - Server tidak merespon';
       } else if (e.type == DioExceptionType.connectionError) {
-        errorMsg = 'Error - Tidak dapat terhubung ke http://192.168.1.5:8000';
+        errorMsg = 'Error - Tidak dapat terhubung ke http://192.168.1.5:7';
       }
 
       if (!mounted) return;

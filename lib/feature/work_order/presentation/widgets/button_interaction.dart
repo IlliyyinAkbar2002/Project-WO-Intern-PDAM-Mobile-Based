@@ -23,23 +23,32 @@ class _ButtonInteractionState extends AppStatePage<ButtonInteraction> {
   @override
   Widget buildPage(BuildContext context) {
     return widget.onPressed != null
-        ? Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: color.danger),
-                onPressed: () => _showConfirmationDialog(),
-                child: const Text('Tolak'),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: color.status[2],
+        ? Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: color.danger,
+                    ),
+                    onPressed: () => _showConfirmationDialog(),
+                    child: const Text('Tolak'),
+                  ),
                 ),
-                onPressed: () => widget.onPressed?.call('Accept'),
-                child: const Text('Terima'),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: color.status[2],
+                    ),
+                    onPressed: () => widget.onPressed?.call('Accept'),
+                    child: const Text('Terima'),
+                  ),
+                ),
+              ],
+            ),
           )
         : Center(
             child: Container(
