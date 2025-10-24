@@ -35,7 +35,7 @@ class UserRemoteDataSource extends RemoteDatasource {
         );
         return userModel;
       }).toList();
-      print("✅ Parsed ${data.length} users/pegawai");
+      print("✅ Parsed ${data.length}/pegawai");
       return DataSuccess(data);
     } catch (e, stackTrace) {
       print("❌ Error fetching pegawai: $e");

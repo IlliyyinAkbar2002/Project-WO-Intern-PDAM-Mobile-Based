@@ -1,9 +1,19 @@
+import java.util.Properties
+import java.nio.charset.StandardCharsets
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.reader(StandardCharsets.UTF_8))
+}
+val mapsApiKey = localProperties.getProperty("maps_api_key") ?: throw IllegalStateException("Property 'maps_api_key' not found in local.properties")
 
 android {
     namespace = "com.example.mobile_intern_pdam"
@@ -28,6 +38,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["mapsApiKey"] = mapsApiKey
     }
 
     buildTypes {
