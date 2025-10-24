@@ -28,6 +28,12 @@ class AppConfig {
     '$backendDomain/storage/app/public/',
   );
 
+  // Google Maps API Key - safe getter with fallback
+  static String get googleMapsApiKey => _getEnv(
+    'GOOGLE_MAPS_API',
+    'AIzaSyBmtfPnRIbGAAXra-XJOMQJ1fekZzLAyk4', // fallback to local.properties value
+  );
+
   static Map<String, dynamic> toMap() {
     return {'environment': environment};
   }

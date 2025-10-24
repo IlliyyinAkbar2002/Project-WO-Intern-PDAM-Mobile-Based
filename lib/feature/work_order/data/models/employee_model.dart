@@ -22,12 +22,31 @@ class EmployeeModel extends EmployeeEntity {
 
   factory EmployeeModel.fromMap(Map<String, dynamic> map) {
     print("🔧 EmployeeModel.fromMap received: $map");
-    print("🔧 EmployeeModel.fromMap keys: ${map.keys}");
-    print("🔧 nama value: ${map['nama']}, nip value: ${map['nip']}");
+    print("🔧 EmployeeModel.fromMap keys: ${map.keys.toList()}");
+
+    // Handle multiple possible key names for name field
+    final name =
+        map['nama'] ?? map['name'] ?? map['full_name'] ?? map['nama_lengkap'];
+    final nip = map['nip'] ?? map['employee_id'] ?? map['employee_number'];
+    final id = map['id'] ?? map['pegawai_id'];
+
+    print("🔧 Extracted values - id: $id, nama: $name, nip: $nip");
+
+    if (name == null) {
+      print(
+        "⚠️ WARNING: Could not find name field in keys: ${map.keys.toList()}",
+      );
+    }
+    if (nip == null) {
+      print(
+        "⚠️ WARNING: Could not find nip field in keys: ${map.keys.toList()}",
+      );
+    }
+
     return EmployeeModel(
-      id: map['id'],
-      name: map['nama'],
-      nip: map['nip'],
+      id: id,
+      name: name,
+      nip: nip,
       // birthDate: map['tanggal_lahir'] != null
       //     ? DateTime.tryParse(map['tanggal_lahir'])
       //     : null,

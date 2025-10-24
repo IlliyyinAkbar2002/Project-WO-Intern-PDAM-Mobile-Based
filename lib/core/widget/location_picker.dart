@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_places_flutter/google_places_flutter.dart';
+import 'package:mobile_intern_pdam/config/app_config.dart';
 import 'package:mobile_intern_pdam/core/widget/app_state_page.dart';
-
-const String googleApiKey = "AIzaSyC8EjxfalU-TK8i0vaNXLjQud9pNTc9UeI";
 
 class LocationPicker extends StatefulWidget {
   final int? workOrderId;
@@ -156,7 +155,7 @@ class _LocationPickerState extends AppStatePage<LocationPicker> {
                   ? const SizedBox()
                   : GooglePlaceAutoCompleteTextField(
                       textEditingController: _searchController,
-                      googleAPIKey: googleApiKey,
+                      googleAPIKey: AppConfig.googleMapsApiKey,
                       inputDecoration: InputDecoration(
                         hintText: "Cari lokasi...",
                         hintStyle: const TextStyle(

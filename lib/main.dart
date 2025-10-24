@@ -20,6 +20,7 @@ void main() async {
     try {
       await dotenv.load();
       print("✅ .env file loaded successfully");
+      print("✅ Google Maps API Key: ${dotenv.env['GOOGLE_MAPS_API']}");
     } catch (e) {
       print("⚠️ .env file not found or couldn't be loaded, using defaults: $e");
       // No-op: AppConfig uses safe fallbacks when dotenv isn't initialized

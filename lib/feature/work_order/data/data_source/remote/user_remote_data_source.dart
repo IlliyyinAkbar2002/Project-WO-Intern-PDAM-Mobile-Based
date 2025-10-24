@@ -11,31 +11,70 @@ class UserRemoteDataSource extends RemoteDatasource {
       // Use parent class's get() method which includes auth headers
       final response = await get(path: '/pegawai');
       print("📥 Raw response from /pegawai: ${response.data}");
+      print("📥 Response type: ${response.data.runtimeType}");
 
-      // Check first item structure
-      if (response.data is List && (response.data as List).isNotEmpty) {
-        print("📥 First pegawai item: ${(response.data as List).first}");
-        print("📥 First pegawai keys: ${(response.data as List).first.keys}");
+      // Check if response is a list
+      if (response.data is! List) {
+        print("❌ Expected List but got ${response.data.runtimeType}");
+        return DataFailed(
+          DioException(
+            error: "Invalid response format: expected List",
+            requestOptions: RequestOptions(path: '/pegawai'),
+          ),
+        );
       }
 
-      // Transform pegawai data to User format
-      final data = (response.data as List).map<UserModel>((pegawai) {
-        print("🔍 Processing pegawai: $pegawai");
-        // Convert pegawai object to user object with nested employee
-        final transformedData = {
-          'id': pegawai['id'],
-          'pegawai_id': pegawai['id'],
-          'email': null,
-          'role_id': null,
-          'pegawai': pegawai, // Nest the pegawai object
-        };
-        final userModel = UserModel.fromMap(transformedData);
+      final List<dynamic> responseList = response.data as List;
+      print("📥 Total items: ${responseList.length}");
+
+      // Check first item structure
+      if (responseList.isNotEmpty) {
+        print("📥 First item: ${responseList.first}");
+        print("📥 First item type: ${responseList.first.runtimeType}");
+        if (responseList.first is Map) {
+          print(
+            "📥 First item keys: ${(responseList.first as Map).keys.toList()}",
+          );
+        }
+      }
+
+      // Parse each item
+      final data = responseList.map<UserModel>((item) {
+        print("🔍 Processing item: $item");
+        print("🔍 Item type: ${item.runtimeType}");
+
+        // Check if this is already a user object with nested pegawai
+        // or just a pegawai object that needs to be wrapped
+        Map<String, dynamic> userMap;
+
+        if (item['pegawai'] != null) {
+          // API already returns user with nested pegawai
+          print("✅ Item already has nested 'pegawai' field");
+          userMap = Map<String, dynamic>.from(item);
+        } else {
+          // API returns just pegawai data, need to wrap it
+          print("🔄 Wrapping pegawai data in user structure");
+          userMap = {
+            'id': item['user_id'] ?? item['id'],
+            'pegawai_id': item['id'],
+            'email': item['email'],
+            'role_id': item['role_id'],
+            'pegawai': item, // Nest the entire item as pegawai
+          };
+        }
+
+        print("🔍 Final userMap: $userMap");
+        final userModel = UserModel.fromMap(userMap);
         print(
-          "🔍 UserModel: name=${userModel.employee?.name}, nip=${userModel.employee?.nip}",
+          "🔍 Parsed UserModel: id=${userModel.id}, name=${userModel.employee?.name}, nip=${userModel.employee?.nip}",
         );
         return userModel;
       }).toList();
-      print("✅ Parsed ${data.length}/pegawai");
+
+      print("✅ Successfully parsed ${data.length} users");
+      print(
+        "✅ Sample result: ${data.isNotEmpty ? '${data.first.employee?.name} - ${data.first.employee?.nip}' : 'empty'}",
+      );
       return DataSuccess(data);
     } catch (e, stackTrace) {
       print("❌ Error fetching pegawai: $e");
