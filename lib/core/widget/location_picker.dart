@@ -31,8 +31,6 @@ class _LocationPickerState extends AppStatePage<LocationPicker> {
   String locationInfo = "";
   String selectedLocationName = "";
 
-  String formatCoordinate(double value) => value.toStringAsFixed(6);
-
   @override
   void initState() {
     super.initState();
@@ -124,51 +122,16 @@ class _LocationPickerState extends AppStatePage<LocationPicker> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Tampilan informasi lokasi.
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    locationInfo,
-                    style: const TextStyle(
-                      fontFamily: 'Roboto',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF2A83C6),
-                      letterSpacing: -0.2,
-                    ),
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        locationInfo.isNotEmpty
-                            ? "Long ${formatCoordinate(_selectedLocation.longitude)}"
-                            : "",
-                        style: const TextStyle(
-                          fontFamily: 'Roboto',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF8797AE),
-                          letterSpacing: -0.2,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        locationInfo.isNotEmpty
-                            ? "Lat ${formatCoordinate(_selectedLocation.latitude)}"
-                            : "",
-                        style: const TextStyle(
-                          fontFamily: 'Roboto',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF8797AE),
-                          letterSpacing: -0.2,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+              // Text(
+              //   locationInfo,
+              //   style: const TextStyle(
+              //     fontFamily: 'Roboto',
+              //     fontSize: 14,
+              //     fontWeight: FontWeight.w500,
+              //     color: Color(0xFF2A83C6),
+              //     letterSpacing: -0.2,
+              //   ),
+              // ),
               const SizedBox(height: 8),
               // Field pencarian lokasi - tap to open modal
               (widget.isReadOnly)

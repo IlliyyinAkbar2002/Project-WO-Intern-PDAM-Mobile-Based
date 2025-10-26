@@ -184,8 +184,9 @@ class _LocationSearchModalState extends State<LocationSearchModal> {
                     final location = _filteredLocations[index];
                     return InkWell(
                       onTap: () {
+                        // Only call the callback, don't pop here
+                        // The callback will handle the pop with the data
                         widget.onLocationSelected(location);
-                        Navigator.pop(context);
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
