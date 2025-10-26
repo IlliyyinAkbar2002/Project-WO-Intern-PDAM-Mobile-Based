@@ -182,3 +182,12 @@ class GetFormByWorkOrderTypeIdEvent extends WorkOrderEvent {
 
   GetFormByWorkOrderTypeIdEvent(this.workOrderTypeId);
 }
+
+//master location
+class GetMasterLocationsEvent extends WorkOrderEvent {}
+
+class GetMasterLocationDetailEvent extends WorkOrderEvent {
+  final int id;
+
+  GetMasterLocationDetailEvent(this.id);
+}

@@ -4,6 +4,7 @@ import 'package:mobile_intern_pdam/feature/work_order/domain/entities/work_order
 import 'package:mobile_intern_pdam/feature/work_order/domain/usecases/form_usecases/get_forms_usecase.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/usecases/location_type_usecases/get_location_type_detail_usecase.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/usecases/location_type_usecases/get_location_types_usecase.dart';
+import 'package:mobile_intern_pdam/feature/work_order/domain/usecases/master_location_usecases/get_master_locations_usecase.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/usecases/progress_detail_usecases/get_progress_details_usecase.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/usecases/progress_detail_usecases/update_progress_detail_usecase.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/usecases/spl_usecases/get_spl_detail.dart';
@@ -64,6 +65,9 @@ class WorkOrderBloc extends Bloc<WorkOrderEvent, WorkOrderState> {
   //form
   final GetFormByWorkOrderTypeIdUsecase getFormByWorkOrderTypeIdUsecase;
 
+  //master location
+  final GetMasterLocationsUsecase getMasterLocationsUsecase;
+
   // final UpdateLocationUseCase updateLocationUseCase;
   // final GetCurrentLocationUseCase getCurrentLocationUseCase;
   // final SetManualLocationUseCase setManualLocationUseCase;
@@ -104,6 +108,9 @@ class WorkOrderBloc extends Bloc<WorkOrderEvent, WorkOrderState> {
 
     //form
     this.getFormByWorkOrderTypeIdUsecase,
+
+    //master location
+    this.getMasterLocationsUsecase,
 
     // this.updateLocationUseCase,
     // this.getCurrentLocationUseCase,
@@ -146,6 +153,9 @@ class WorkOrderBloc extends Bloc<WorkOrderEvent, WorkOrderState> {
 
     //form
     on<GetFormByWorkOrderTypeIdEvent>(_onGetFormByWorkOrderTypeIdEvent);
+
+    //master location
+    on<GetMasterLocationsEvent>(_onGetMasterLocationsEvent);
 
     // on<UpdateLocationEvent>(_onUpdateLocationEvent);
     // on<GetCurrentLocationEvent>(_onGetCurrentLocationEvent);
@@ -576,6 +586,30 @@ class WorkOrderBloc extends Bloc<WorkOrderEvent, WorkOrderState> {
       }
     } catch (e) {
       emit(WorkOrderError("Gagal mengambil form: $e"));
+    }
+  }
+
+  //master location
+  Future<void> _onGetMasterLocationsEvent(
+    GetMasterLocationsEvent event,
+    Emitter<WorkOrderState> emit,
+  ) async {
+    emit(WorkOrderLoading());
+    print("🟡 Memuat data Master Location...");
+    try {
+      final dataState = await getMasterLocationsUsecase(null);
+      if (dataState is DataSuccess) {
+        print(
+          "✅ Data Master Location berhasil dimuat: ${dataState.data!.length}",
+        );
+        emit(MasterLocationsLoaded(dataState.data!));
+      } else if (dataState is DataFailed) {
+        print("❌ Gagal memuat Master Location: ${dataState.error}");
+        emit(WorkOrderError(dataState.error.toString()));
+      }
+    } catch (e) {
+      print("❌ Error saat mengambil Master Location: $e");
+      emit(WorkOrderError("Gagal mengambil master location: $e"));
     }
   }
 }

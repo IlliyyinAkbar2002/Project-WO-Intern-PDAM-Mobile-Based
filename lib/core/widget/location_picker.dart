@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_places_flutter/google_places_flutter.dart';
-import 'package:mobile_intern_pdam/config/app_config.dart';
 import 'package:mobile_intern_pdam/core/widget/app_state_page.dart';
+import 'package:mobile_intern_pdam/core/widget/location_search_modal.dart';
 
 class LocationPicker extends StatefulWidget {
   final int? workOrderId;
@@ -30,9 +29,9 @@ class _LocationPickerState extends AppStatePage<LocationPicker> {
   GoogleMapController? _mapController;
   LatLng _selectedLocation = const LatLng(-7.250445, 112.768845);
   String locationInfo = "";
+  String selectedLocationName = "";
 
   String formatCoordinate(double value) => value.toStringAsFixed(6);
-  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -65,6 +64,27 @@ class _LocationPickerState extends AppStatePage<LocationPicker> {
       _moveCamera(position);
     });
     widget.onLocationSelected(position.latitude, position.longitude);
+  }
+
+  /// Open location search modal
+  Future<void> _openLocationSearchModal() async {
+    final selectedLocation = await showLocationSearchModal(context);
+    if (selectedLocation != null) {
+      final newPosition = LatLng(
+        selectedLocation.latitude,
+        selectedLocation.longitude,
+      );
+      setState(() {
+        locationInfo = selectedLocation.nama;
+        selectedLocationName = selectedLocation.nama;
+        _selectedLocation = newPosition;
+        _moveCamera(newPosition);
+      });
+      widget.onLocationSelected(
+        selectedLocation.latitude,
+        selectedLocation.longitude,
+      );
+    }
   }
 
   @override
@@ -150,48 +170,47 @@ class _LocationPickerState extends AppStatePage<LocationPicker> {
                 ],
               ),
               const SizedBox(height: 8),
-              // Field pencarian lokasi menggunakan Google Places Autocomplete.
+              // Field pencarian lokasi - tap to open modal
               (widget.isReadOnly)
                   ? const SizedBox()
-                  : GooglePlaceAutoCompleteTextField(
-                      textEditingController: _searchController,
-                      googleAPIKey: AppConfig.googleMapsApiKey,
-                      inputDecoration: InputDecoration(
-                        hintText: "Cari lokasi...",
-                        hintStyle: const TextStyle(
-                          fontFamily: 'Roboto',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF8797AE),
-                          letterSpacing: -0.2,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
+                  : GestureDetector(
+                      onTap: _openLocationSearchModal,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 14,
                           vertical: 12,
                         ),
-                        border: OutlineInputBorder(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: const Color(0xFFAFBACA)),
                           borderRadius: BorderRadius.circular(6),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFAFBACA),
-                          ),
                         ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFAFBACA),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF2D499B),
-                            width: 1.5,
-                          ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                selectedLocationName.isEmpty
+                                    ? "Cari lokasi..."
+                                    : selectedLocationName,
+                                style: TextStyle(
+                                  fontFamily: 'Roboto',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: selectedLocationName.isEmpty
+                                      ? const Color(0xFF8797AE)
+                                      : const Color(0xFF2D3643),
+                                  letterSpacing: -0.2,
+                                ),
+                              ),
+                            ),
+                            const Icon(
+                              Icons.search,
+                              color: Color(0xFF8797AE),
+                              size: 20,
+                            ),
+                          ],
                         ),
                       ),
-                      debounceTime: 800,
-                      countries: ["id"], // Membatasi pencarian di Indonesia
-                      isLatLngRequired: true,
                     ),
             ],
           ),

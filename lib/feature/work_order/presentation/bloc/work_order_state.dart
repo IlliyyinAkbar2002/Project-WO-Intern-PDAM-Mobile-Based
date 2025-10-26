@@ -1,5 +1,6 @@
 import 'package:mobile_intern_pdam/feature/work_order/domain/entities/form_entity.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/entities/location_type_entity.dart';
+import 'package:mobile_intern_pdam/feature/work_order/domain/entities/master_location_entity.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/entities/progress_detail_entity.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/entities/spl_entity.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/entities/user_entity.dart';
@@ -135,6 +136,19 @@ class FormsLoaded extends WorkOrderState {
   final List<FormEntity> forms;
 
   FormsLoaded(this.forms);
+}
+
+//master location
+class MasterLocationsLoaded extends WorkOrderState {
+  final List<MasterLocationEntity> masterLocations;
+
+  MasterLocationsLoaded(this.masterLocations);
+}
+
+class MasterLocationDetailLoaded extends WorkOrderState {
+  final MasterLocationEntity masterLocation;
+
+  MasterLocationDetailLoaded(this.masterLocation);
 }
 
 // Error handling

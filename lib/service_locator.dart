@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mobile_intern_pdam/core/common/input_chip/bloc/chip_field_bloc.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/data_source/remote/form_remote_data_source.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/data_source/remote/location_type_remote_data_source.dart';
+import 'package:mobile_intern_pdam/feature/work_order/data/data_source/remote/master_location_remote_data_source.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/data_source/remote/progress_detail_remote_data_source.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/data_source/remote/spl_remote_data_source.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/data_source/remote/user_remote_data_source.dart';
@@ -9,6 +10,7 @@ import 'package:mobile_intern_pdam/feature/work_order/data/data_source/remote/wo
 import 'package:mobile_intern_pdam/feature/work_order/data/data_source/remote/work_order_type_remote_data_source.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/repositories/form_repository_impl.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/repositories/location_type_repository_impl.dart';
+import 'package:mobile_intern_pdam/feature/work_order/data/repositories/master_location_repository_impl.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/repositories/progress_detail_repository_impl.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/repositories/spl_repository_impl.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/repositories/user_repository_impl.dart';
@@ -16,6 +18,7 @@ import 'package:mobile_intern_pdam/feature/work_order/data/repositories/work_ord
 import 'package:mobile_intern_pdam/feature/work_order/data/repositories/work_order_type_repository_impl.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/repositories/form_repository.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/repositories/location_type_repository.dart';
+import 'package:mobile_intern_pdam/feature/work_order/domain/repositories/master_location_repository.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/repositories/progress_detail_repository.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/repositories/spl_repository.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/repositories/user_repository.dart';
@@ -24,6 +27,7 @@ import 'package:mobile_intern_pdam/feature/work_order/domain/repositories/work_o
 import 'package:mobile_intern_pdam/feature/work_order/domain/usecases/form_usecases/get_forms_usecase.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/usecases/location_type_usecases/get_location_type_detail_usecase.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/usecases/location_type_usecases/get_location_types_usecase.dart';
+import 'package:mobile_intern_pdam/feature/work_order/domain/usecases/master_location_usecases/get_master_locations_usecase.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/usecases/progress_detail_usecases/get_progress_details_usecase.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/usecases/progress_detail_usecases/update_progress_detail_usecase.dart';
 import 'package:mobile_intern_pdam/feature/work_order/domain/usecases/spl_usecases/get_spl_detail.dart';
@@ -89,6 +93,11 @@ Future<void> init() async {
     );
     print("✅ FormRemoteDataSource terdaftar");
 
+    sl.registerLazySingleton<MasterLocationRemoteDataSource>(
+      () => MasterLocationRemoteDataSource(),
+    );
+    print("✅ MasterLocationRemoteDataSource terdaftar");
+
     // **2️⃣ Repository**
     sl.registerLazySingleton<WorkOrderRepository>(
       () => WorkOrderRepositoryImpl(sl<WorkOrderRemoteDataSource>()),
@@ -143,6 +152,13 @@ Future<void> init() async {
       ),
     );
     print("✅ FormRepository terdaftar");
+
+    sl.registerLazySingleton<MasterLocationRepository>(
+      () => MasterLocationRepositoryImpl(
+        sl<MasterLocationRemoteDataSource>(), // remoteDataSource
+      ),
+    );
+    print("✅ MasterLocationRepository terdaftar");
 
     // **4️⃣ Use Cases**
     sl.registerLazySingleton(
@@ -211,6 +227,11 @@ Future<void> init() async {
       () => GetFormByWorkOrderTypeIdUsecase(sl<FormRepository>()),
     );
 
+    //master location
+    sl.registerLazySingleton(
+      () => GetMasterLocationsUsecase(sl<MasterLocationRepository>()),
+    );
+
     print("✅ Semua use case terdaftar");
 
     // **5️⃣ Bloc**
@@ -249,6 +270,9 @@ Future<void> init() async {
 
         //form
         sl<GetFormByWorkOrderTypeIdUsecase>(),
+
+        //master location
+        sl<GetMasterLocationsUsecase>(),
       ),
     );
     print("✅ WorkOrderBloc terdaftar");
