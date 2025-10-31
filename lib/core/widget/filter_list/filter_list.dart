@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_intern_pdam/core/widget/app_state_page.dart';
+import 'package:mobile_intern_pdam/core/resource/data_state.dart';
+import 'package:mobile_intern_pdam/feature/work_order/data/data_source/remote/user_remote_data_source.dart';
+import 'package:mobile_intern_pdam/feature/work_order/data/models/user_model.dart';
 
 class CustomFilterDialog extends StatefulWidget {
   const CustomFilterDialog({super.key});
@@ -150,32 +153,54 @@ class _CustomFilterDialogState extends AppStatePage<CustomFilterDialog> {
       onReset: () {
         setState(() => selectedAssignee = null);
       },
-      child: Container(
-        height: 48,
-        decoration: BoxDecoration(
-          color: const Color(0xFFE9EFF6),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: TextField(
-          decoration: const InputDecoration(
-            hintText: 'Cari nama petugas...',
-            hintStyle: TextStyle(
-              fontSize: 16,
-              color: Colors.black,
-              fontWeight: FontWeight.w400,
-            ),
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-            suffixIcon: Icon(
-              Icons.keyboard_arrow_down,
-              color: Colors.black,
-              size: 20,
-            ),
+      child: GestureDetector(
+        onTap: () => _showOfficerSearchBottomSheet(),
+        child: Container(
+          height: 48,
+          decoration: BoxDecoration(
+            color: const Color(0xFFE9EFF6),
+            borderRadius: BorderRadius.circular(8),
           ),
-          onChanged: (value) => setState(() => selectedAssignee = value),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                selectedAssignee ?? 'Cari nama petugas...',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: selectedAssignee != null
+                      ? Colors.black
+                      : Colors.black.withOpacity(0.6),
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              const Icon(
+                Icons.keyboard_arrow_down,
+                color: Colors.black,
+                size: 20,
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Future<void> _showOfficerSearchBottomSheet() async {
+    final result = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) =>
+          OfficerSearchSheet(selectedOfficer: selectedAssignee),
+    );
+
+    if (result != null) {
+      setState(() {
+        selectedAssignee = result;
+      });
+    }
   }
 
   Widget _buildStatusFilter() {
@@ -509,6 +534,362 @@ class _CustomFilterDialogState extends AppStatePage<CustomFilterDialog> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Officer Search Bottom Sheet Widget
+/// This bottom sheet allows users to search and select an officer from a list
+class OfficerSearchSheet extends StatefulWidget {
+  final String? selectedOfficer;
+
+  const OfficerSearchSheet({super.key, this.selectedOfficer});
+
+  @override
+  State<OfficerSearchSheet> createState() => _OfficerSearchSheetState();
+}
+
+class _OfficerSearchSheetState extends State<OfficerSearchSheet> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  List<UserModel> _allOfficers = [];
+  List<UserModel> _filteredOfficers = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchOfficers();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchOfficers() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final dataSource = UserRemoteDataSource();
+      final result = await dataSource.fetchUsers();
+
+      if (result is DataSuccess<List<UserModel>>) {
+        setState(() {
+          _allOfficers = result.data ?? [];
+          _filteredOfficers = _allOfficers;
+          _isLoading = false;
+        });
+      } else if (result is DataFailed) {
+        setState(() {
+          _errorMessage = 'Gagal memuat data petugas';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Terjadi kesalahan: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _filterOfficers(String query) {
+    setState(() {
+      _searchQuery = query;
+      if (query.isEmpty) {
+        _filteredOfficers = _allOfficers;
+      } else {
+        _filteredOfficers = _allOfficers.where((officer) {
+          final name = officer.employee?.name?.toLowerCase() ?? '';
+          final nip = officer.employee?.nip?.toLowerCase() ?? '';
+          final searchLower = query.toLowerCase();
+          return name.contains(searchLower) || nip.contains(searchLower);
+        }).toList();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.85,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          // Navigation Bar
+          _buildNavigationBar(),
+
+          // Search TextField
+          _buildSearchField(),
+
+          const SizedBox(height: 16),
+
+          // Divider
+          Container(height: 1, color: const Color(0xFFECEDF0)),
+
+          // List View (Empty for now - ready for API data)
+          Expanded(child: _buildOfficerList()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavigationBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Cancel Button
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: const Size(60, 40),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF2D499B),
+              ),
+            ),
+          ),
+
+          // Title
+          const Text(
+            'Pilih Petugas',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF31373D),
+            ),
+          ),
+
+          // Empty space for symmetry
+          const SizedBox(width: 60),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5F5F5),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: TextField(
+          controller: _searchController,
+          onChanged: (value) {
+            _filterOfficers(value);
+          },
+          decoration: InputDecoration(
+            hintText: 'Cari nama petugas...',
+            hintStyle: TextStyle(
+              fontSize: 16,
+              color: Colors.grey.shade500,
+              fontWeight: FontWeight.w400,
+            ),
+            prefixIcon: Icon(
+              Icons.search,
+              color: Colors.grey.shade600,
+              size: 22,
+            ),
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+            suffixIcon: _searchQuery.isNotEmpty
+                ? IconButton(
+                    icon: Icon(
+                      Icons.clear,
+                      color: Colors.grey.shade600,
+                      size: 20,
+                    ),
+                    onPressed: () {
+                      _searchController.clear();
+                      setState(() {
+                        _searchQuery = '';
+                      });
+                    },
+                  )
+                : null,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOfficerList() {
+    // Show loading indicator
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xFF2D499B)),
+      );
+    }
+
+    // Show error message
+    if (_errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 64, color: Colors.red.shade400),
+            const SizedBox(height: 16),
+            Text(
+              _errorMessage!,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _fetchOfficers,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2D499B),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+              child: const Text(
+                'Coba Lagi',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Show empty state when no officers found
+    if (_filteredOfficers.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.people_outline, size: 64, color: Colors.grey.shade400),
+            const SizedBox(height: 16),
+            Text(
+              _searchQuery.isEmpty
+                  ? 'Tidak ada data petugas'
+                  : 'Tidak ditemukan petugas',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _searchQuery.isEmpty
+                  ? 'Data petugas masih kosong'
+                  : 'Coba kata kunci lain',
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Show list of officers
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      itemCount: _filteredOfficers.length,
+      itemBuilder: (context, index) {
+        final officer = _filteredOfficers[index];
+        final employee = officer.employee;
+        final name = employee?.name ?? 'Nama tidak tersedia';
+        final nip = employee?.nip ?? '-';
+
+        return InkWell(
+          onTap: () {
+            // Return the selected officer name to the caller
+            Navigator.pop(context, name);
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+              ),
+            ),
+            child: Row(
+              children: [
+                // Avatar
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2D499B).withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      name.isNotEmpty ? name[0].toUpperCase() : '?',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF2D499B),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Name and NIP
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF31373D),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'NIP: $nip',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Checkmark for selected officer
+                if (widget.selectedOfficer == name)
+                  const Icon(
+                    Icons.check_circle,
+                    color: Color(0xFF2D499B),
+                    size: 24,
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
