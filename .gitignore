@@ -50,6 +50,8 @@ POSTGRESQL_SETUP.md
 test
 note.txt
 
+docs
+
 # Environment files
 .env
 .env.*

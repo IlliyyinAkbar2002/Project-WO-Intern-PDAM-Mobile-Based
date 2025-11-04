@@ -19,7 +19,7 @@ class WorkOrderProgressRemoteDataSource extends RemoteDatasource {
     try {
       // Use parent class's get() method which includes auth headers
       final response = await get(
-        path: '/progress-workorder',
+        path: '/v1/progress-workorder',
         queryParameters: {'workorder_id': workOrderId},
       );
       if (response.data is Map<String, dynamic>) {
@@ -38,7 +38,7 @@ class WorkOrderProgressRemoteDataSource extends RemoteDatasource {
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/progress-workorder'),
+          requestOptions: RequestOptions(path: '/v1/progress-workorder'),
         ),
       );
     }
@@ -49,14 +49,14 @@ class WorkOrderProgressRemoteDataSource extends RemoteDatasource {
   ) async {
     try {
       // Use parent class's get() method which includes auth headers
-      final response = await get(path: '/progress-workorder/$id');
+      final response = await get(path: '/v1/progress-workorder/$id');
       final data = WorkOrderProgressModel.fromMap(response.data);
       return DataSuccess(data);
     } catch (e) {
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/progress-workorder/$id'),
+          requestOptions: RequestOptions(path: '/v1/progress-workorder/$id'),
         ),
       );
     }
@@ -195,7 +195,7 @@ class WorkOrderProgressRemoteDataSource extends RemoteDatasource {
 
       // Use parent class's post() method which includes auth headers
       final response = await post(
-        path: '/progress-workorder/${workOrderProgress.id}',
+        path: '/v1/progress-workorder/${workOrderProgress.id}',
         data: formData,
         contentType: ContentType.multipart,
       );
@@ -207,7 +207,7 @@ class WorkOrderProgressRemoteDataSource extends RemoteDatasource {
         DioException(
           error: e,
           requestOptions: RequestOptions(
-            path: '/progress-workorder/${workOrderProgress.id}',
+            path: '/v1/progress-workorder/${workOrderProgress.id}',
           ),
         ),
       );

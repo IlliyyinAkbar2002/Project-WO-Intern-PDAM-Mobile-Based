@@ -12,7 +12,7 @@ class FormRemoteDataSource extends RemoteDatasource {
     try {
       // Use parent class's get() method which includes auth headers
       final response = await get(
-        path: '/detail-form',
+        path: '/v1/detail-form',
         queryParameters: {'jenis_workorder_id': workOrderTypeId},
       );
       if (response.data is Map<String, dynamic>) {
@@ -29,7 +29,7 @@ class FormRemoteDataSource extends RemoteDatasource {
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/detail-form'),
+          requestOptions: RequestOptions(path: '/v1/detail-form'),
         ),
       );
     }

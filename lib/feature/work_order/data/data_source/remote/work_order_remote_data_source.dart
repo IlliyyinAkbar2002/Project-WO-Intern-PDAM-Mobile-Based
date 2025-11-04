@@ -36,7 +36,7 @@ class WorkOrderRemoteDataSource extends RemoteDatasource {
 
       // Use parent class's get() method which includes auth headers
       final response = await get(
-        path: '/workorder',
+        path: '/v1/workorder',
         queryParameters: queryParameters,
       );
       final data = response.data['data']
@@ -53,7 +53,7 @@ class WorkOrderRemoteDataSource extends RemoteDatasource {
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/workorder'),
+          requestOptions: RequestOptions(path: '/v1/workorder'),
         ),
       );
     }
@@ -62,14 +62,14 @@ class WorkOrderRemoteDataSource extends RemoteDatasource {
   Future<DataState<WorkOrderModel>> fetchWorkOrderDetail(int id) async {
     try {
       // Use parent class's get() method which includes auth headers
-      final response = await get(path: '/workorder/$id');
+      final response = await get(path: '/v1/workorder/$id');
       final data = WorkOrderModel.fromMap(response.data);
       return DataSuccess(data);
     } catch (e) {
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/workorder/$id'),
+          requestOptions: RequestOptions(path: '/v1/workorder/$id'),
         ),
       );
     }
@@ -79,11 +79,14 @@ class WorkOrderRemoteDataSource extends RemoteDatasource {
     WorkOrderModel workOrder,
   ) async {
     try {
-      print("📤 Mengirim request ke API: ${dio.options.baseUrl}/workorder");
+      print("📤 Mengirim request ke API: ${dio.options.baseUrl}/v1/workorder");
       print("📤 Data yang dikirim: ${workOrder.toMap()}");
 
       // Use parent class's post() method which includes auth headers
-      final response = await post(path: '/workorder', data: workOrder.toMap());
+      final response = await post(
+        path: '/v1/workorder',
+        data: workOrder.toMap(),
+      );
       print("📥 Response: ${response.statusCode} - ${response.data}");
       final data = WorkOrderModel.fromMap(response.data);
       return DataSuccess(data);
@@ -91,7 +94,7 @@ class WorkOrderRemoteDataSource extends RemoteDatasource {
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/workorder'),
+          requestOptions: RequestOptions(path: '/v1/workorder'),
         ),
       );
     }
@@ -103,7 +106,7 @@ class WorkOrderRemoteDataSource extends RemoteDatasource {
     try {
       // Use parent class's put() method which includes auth headers
       final response = await put(
-        path: '/workorder/${workOrder.id}',
+        path: '/v1/mobile/workorder/${workOrder.id}',
         data: workOrder.toMap(),
       );
       final data = WorkOrderModel.fromMap(response.data);
@@ -112,7 +115,7 @@ class WorkOrderRemoteDataSource extends RemoteDatasource {
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/workorder/${workOrder.id}'),
+          requestOptions: RequestOptions(path: '/v1/workorder/${workOrder.id}'),
         ),
       );
     }
@@ -121,13 +124,13 @@ class WorkOrderRemoteDataSource extends RemoteDatasource {
   Future<DataState<void>> deleteWorkOrder(int id) async {
     try {
       // Use parent class's delete() method which includes auth headers
-      await delete(path: '/workorder/$id');
+      await delete(path: '/v1/workorder/$id');
       return const DataSuccess(null);
     } catch (e) {
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/workorder/$id'),
+          requestOptions: RequestOptions(path: '/v1/workorder/$id'),
         ),
       );
     }

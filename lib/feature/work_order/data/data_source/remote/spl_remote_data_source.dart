@@ -9,7 +9,7 @@ class SplRemoteDataSource extends RemoteDatasource {
   Future<DataState<List<SplModel>>> fetchSpls() async {
     try {
       // Use parent class's get() method which includes auth headers
-      final response = await get(path: '/lembur-spl');
+      final response = await get(path: '/v1/lembur-spl');
       final data = response.data['data']
           .map<SplModel>((json) => SplModel.fromMap(json))
           .toList();
@@ -18,7 +18,7 @@ class SplRemoteDataSource extends RemoteDatasource {
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/lembur-spl'),
+          requestOptions: RequestOptions(path: '/v1/lembur-spl'),
         ),
       );
     }
@@ -27,14 +27,14 @@ class SplRemoteDataSource extends RemoteDatasource {
   Future<DataState<SplModel>> fetchSplDetail(int id) async {
     try {
       // Use parent class's get() method which includes auth headers
-      final response = await get(path: '/lembur-spl/$id');
+      final response = await get(path: '/v1/lembur-spl/$id');
       final data = SplModel.fromMap(response.data);
       return DataSuccess(data);
     } catch (e) {
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/lembur-spl/$id'),
+          requestOptions: RequestOptions(path: '/v1/lembur-spl/$id'),
         ),
       );
     }
@@ -44,7 +44,7 @@ class SplRemoteDataSource extends RemoteDatasource {
     try {
       // Use parent class's put() method which includes auth headers
       final response = await put(
-        path: '/lembur-spl/${spl.id}',
+        path: '/v1/lembur-spl/${spl.id}',
         data: spl.toMap(),
       );
       final data = SplModel.fromMap(response.data);
@@ -53,7 +53,7 @@ class SplRemoteDataSource extends RemoteDatasource {
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/lembur-spl/${spl.id}'),
+          requestOptions: RequestOptions(path: '/v1/lembur-spl/${spl.id}'),
         ),
       );
     }

@@ -9,7 +9,7 @@ class WorkOrderTypeRemoteDataSource extends RemoteDatasource {
   Future<DataState<List<WorkOrderTypeModel>>> fetchWorkOrderTypes() async {
     try {
       // Use parent class's get() method which includes auth headers
-      final response = await get(path: '/jenis-workorder');
+      final response = await get(path: '/v1/jenis-workorder');
       final data = response.data['data']
           .map<WorkOrderTypeModel>((json) => WorkOrderTypeModel.fromMap(json))
           .toList();
@@ -18,7 +18,7 @@ class WorkOrderTypeRemoteDataSource extends RemoteDatasource {
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/jenis-workorder'),
+          requestOptions: RequestOptions(path: '/v1/jenis-workorder'),
         ),
       );
     }
@@ -27,14 +27,14 @@ class WorkOrderTypeRemoteDataSource extends RemoteDatasource {
   Future<DataState<WorkOrderTypeModel>> fetchWorkOrderTypeDetail(int id) async {
     try {
       // Use parent class's get() method which includes auth headers
-      final response = await get(path: '/jenis-workorder/$id');
+      final response = await get(path: '/v1/jenis-workorder/$id');
       final data = WorkOrderTypeModel.fromMap(response.data);
       return DataSuccess(data);
     } catch (e) {
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/jenis-workorder/$id'),
+          requestOptions: RequestOptions(path: '/v1/jenis-workorder/$id'),
         ),
       );
     }

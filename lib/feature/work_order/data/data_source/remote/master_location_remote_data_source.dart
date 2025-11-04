@@ -9,8 +9,8 @@ class MasterLocationRemoteDataSource extends RemoteDatasource {
   Future<DataState<List<MasterLocationModel>>> fetchMasterLocations() async {
     try {
       // Use parent class's get() method which includes auth headers
-      final response = await get(path: '/master-location');
-      print("📥 Raw response from /master-location: ${response.data}");
+      final response = await get(path: '/v1/master-location');
+      print("📥 Raw response from /v1/master-location: ${response.data}");
       print("📥 Response type: ${response.data.runtimeType}");
 
       // Laravel API returns: { "success": true, "data": [...], "user_location": {...} }
@@ -34,7 +34,7 @@ class MasterLocationRemoteDataSource extends RemoteDatasource {
           return DataFailed(
             DioException(
               error: "Invalid response format: 'data' field is not a List",
-              requestOptions: RequestOptions(path: '/master-location'),
+              requestOptions: RequestOptions(path: '/v1/master-location'),
             ),
           );
         }
@@ -49,7 +49,7 @@ class MasterLocationRemoteDataSource extends RemoteDatasource {
         return DataFailed(
           DioException(
             error: "Invalid response format: expected Map or List",
-            requestOptions: RequestOptions(path: '/master-location'),
+            requestOptions: RequestOptions(path: '/v1/master-location'),
           ),
         );
       }
@@ -74,7 +74,7 @@ class MasterLocationRemoteDataSource extends RemoteDatasource {
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/master-location'),
+          requestOptions: RequestOptions(path: '/v1/master-location'),
         ),
       );
     }
@@ -85,14 +85,14 @@ class MasterLocationRemoteDataSource extends RemoteDatasource {
   ) async {
     try {
       // Use parent class's get() method which includes auth headers
-      final response = await get(path: '/master-location/$id');
+      final response = await get(path: '/v1/master-location/$id');
       final data = MasterLocationModel.fromMap(response.data);
       return DataSuccess(data);
     } catch (e) {
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/master-location/$id'),
+          requestOptions: RequestOptions(path: '/v1/master-location/$id'),
         ),
       );
     }

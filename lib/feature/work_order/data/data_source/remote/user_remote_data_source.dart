@@ -9,8 +9,8 @@ class UserRemoteDataSource extends RemoteDatasource {
   Future<DataState<List<UserModel>>> fetchUsers() async {
     try {
       // Use parent class's get() method which includes auth headers
-      final response = await get(path: '/pegawai');
-      print("📥 Raw response from /pegawai: ${response.data}");
+      final response = await get(path: '/v1/pegawai');
+      print("📥 Raw response from /v1/pegawai: ${response.data}");
       print("📥 Response type: ${response.data.runtimeType}");
 
       // Check if response is a list
@@ -19,7 +19,7 @@ class UserRemoteDataSource extends RemoteDatasource {
         return DataFailed(
           DioException(
             error: "Invalid response format: expected List",
-            requestOptions: RequestOptions(path: '/pegawai'),
+            requestOptions: RequestOptions(path: '/v1/pegawai'),
           ),
         );
       }
@@ -40,7 +40,7 @@ class UserRemoteDataSource extends RemoteDatasource {
 
       // Parse each item
       final data = responseList.map<UserModel>((item) {
-        print("🔍 Processing item: $item");
+        print("🔍 Processing item from /v1/pegawai: $item");
         print("🔍 Item type: ${item.runtimeType}");
 
         // Check if this is already a user object with nested pegawai
@@ -49,11 +49,11 @@ class UserRemoteDataSource extends RemoteDatasource {
 
         if (item['pegawai'] != null) {
           // API already returns user with nested pegawai
-          print("✅ Item already has nested 'pegawai' field");
+          print("✅ Item already has nested 'pegawai' field from /v1/pegawai");
           userMap = Map<String, dynamic>.from(item);
         } else {
           // API returns just pegawai data, need to wrap it
-          print("🔄 Wrapping pegawai data in user structure");
+          print("🔄 Wrapping pegawai data in user structure from /v1/pegawai");
           userMap = {
             'id': item['user_id'] ?? item['id'],
             'pegawai_id': item['id'],
@@ -63,26 +63,26 @@ class UserRemoteDataSource extends RemoteDatasource {
           };
         }
 
-        print("🔍 Final userMap: $userMap");
+        print("🔍 Final userMap from /v1/pegawai: $userMap");
         final userModel = UserModel.fromMap(userMap);
         print(
-          "🔍 Parsed UserModel: id=${userModel.id}, name=${userModel.employee?.name}, nip=${userModel.employee?.nip}",
+          "🔍 Parsed UserModel from /v1/pegawai: id=${userModel.id}, name=${userModel.employee?.name}, nip=${userModel.employee?.nip}",
         );
         return userModel;
       }).toList();
 
-      print("✅ Successfully parsed ${data.length} users");
+      print("✅ Successfully parsed ${data.length} users from /v1/pegawai");
       print(
-        "✅ Sample result: ${data.isNotEmpty ? '${data.first.employee?.name} - ${data.first.employee?.nip}' : 'empty'}",
+        "✅ Sample result from /v1/pegawai: ${data.isNotEmpty ? '${data.first.employee?.name} - ${data.first.employee?.nip}' : 'empty'}",
       );
       return DataSuccess(data);
     } catch (e, stackTrace) {
-      print("❌ Error fetching pegawai: $e");
-      print("❌ Stack trace: $stackTrace");
+      print("❌ Error fetching pegawai from /v1/pegawai: $e");
+      print("❌ Stack trace from /v1/pegawai: $stackTrace");
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/pegawai'),
+          requestOptions: RequestOptions(path: '/v1/pegawai'),
         ),
       );
     }
@@ -91,14 +91,14 @@ class UserRemoteDataSource extends RemoteDatasource {
   Future<DataState<UserModel>> fetchUserDetail(int id) async {
     try {
       // Use parent class's get() method which includes auth headers
-      final response = await get(path: '/user/$id');
+      final response = await get(path: '/v1/user/$id');
       final data = UserModel.fromMap(response.data);
       return DataSuccess(data);
     } catch (e) {
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/user/$id'),
+          requestOptions: RequestOptions(path: '/v1/user/$id'),
         ),
       );
     }
