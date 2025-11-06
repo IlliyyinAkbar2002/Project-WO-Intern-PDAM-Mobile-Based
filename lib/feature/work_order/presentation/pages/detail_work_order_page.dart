@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_intern_pdam/config/form_fields_config.dart';
 import 'package:mobile_intern_pdam/core/utils/app_snackbar.dart';
+import 'package:mobile_intern_pdam/core/utils/auth_storage.dart';
 import 'package:mobile_intern_pdam/core/widget/app_state_page.dart';
 import 'package:mobile_intern_pdam/core/widget/custom_app_bar.dart';
 import 'package:mobile_intern_pdam/core/widget/custom_field_widgets.dart';
@@ -55,6 +56,8 @@ class _DetailWorkOrderPageState extends AppStatePage<DetailWorkOrderPage> {
   int? splId;
   int? picId;
 
+  bool _isManager = false;
+
   bool isDataLoaded = false;
   bool get isDetailMode => widget.workOrderId != null;
 
@@ -62,6 +65,9 @@ class _DetailWorkOrderPageState extends AppStatePage<DetailWorkOrderPage> {
   void initState() {
     super.initState();
     final bloc = context.read<WorkOrderBloc>();
+
+    final user = AuthStorage.getUserSync();
+    _isManager = user?['role_id'] == 2;
 
     formData["isOvertime"] = widget.isOvertime;
 
@@ -238,22 +244,41 @@ class _DetailWorkOrderPageState extends AppStatePage<DetailWorkOrderPage> {
                 ],
               )
             : const SizedBox(),
-        widget.isAssignee
-            ? const SizedBox()
-            : ButtonInteraction(
-                status: status,
-                onPressed: widget.workOrderId != null
-                    ? widget.picId != picId
-                          ? _buttonChoosen
-                          : null
-                    : null,
-                onDefaultPressed: widget.workOrderId != null
-                    ? null
-                    : _validateAndSubmit,
-              ),
+        widget.isAssignee ? const SizedBox() : _buildActionButtons(),
         // Text("${widget.status}")
       ],
     );
+  }
+
+  Widget _buildActionButtons() {
+    // If creating a new work order, show submit button
+    if (widget.workOrderId == null) {
+      return ButtonInteraction(
+        status: null,
+        onDefaultPressed: _validateAndSubmit,
+      );
+    }
+
+    // Only managers can approve/reject existing work orders
+    if (!_isManager) {
+      return const SizedBox();
+    }
+
+    final int? currentStatus = status ?? widget.status;
+    final bool isPending = currentStatus == 1;
+    final bool requiresApproval =
+        widget.isOvertime || formData["isOvertime"] == true;
+
+    if (isPending && requiresApproval) {
+      return ButtonInteraction(
+        status: currentStatus,
+        onPressed: _buttonChoosen,
+      );
+    }
+
+    // For all other cases (already approved, rejected, in progress, etc.)
+    // Don't show any buttons (read-only mode)
+    return const SizedBox();
   }
 
   void _buttonChoosen(String action) {

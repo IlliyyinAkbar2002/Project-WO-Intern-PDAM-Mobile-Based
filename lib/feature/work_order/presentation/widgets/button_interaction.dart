@@ -44,7 +44,7 @@ class _ButtonInteractionState extends AppStatePage<ButtonInteraction> {
                       backgroundColor: color.status[2],
                     ),
                     onPressed: () => widget.onPressed?.call('Accept'),
-                    child: const Text('Terima'),
+                    child: const Text('Setujui'),
                   ),
                 ),
               ],
