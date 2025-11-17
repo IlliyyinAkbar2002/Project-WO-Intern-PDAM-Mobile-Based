@@ -21,7 +21,7 @@ class AppConfig {
   // Use default backend domain if not provided in .env
   static final String backendDomain = _getEnv(
     'BACKEND_DOMAIN',
-    'http://172.30.4.102:8000',
+    'http://172.30.4.100:8000',
   );
   static final String baseStorageUrl = _getEnv(
     'BACKEND_URL',

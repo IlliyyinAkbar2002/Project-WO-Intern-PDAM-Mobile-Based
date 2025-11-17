@@ -155,7 +155,7 @@ class _LoginPageState extends State<LoginPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Username',
+          'Email',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
@@ -167,7 +167,7 @@ class _LoginPageState extends State<LoginPage> {
           controller: _usernameController,
           keyboardType: TextInputType.text,
           decoration: InputDecoration(
-            hintText: 'Masukkan username',
+            hintText: 'Masukkan email',
             hintStyle: const TextStyle(color: Color(0xFFB0BEC5), fontSize: 14),
             prefixIcon: const Icon(
               Icons.person_outline,
@@ -195,7 +195,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Username harus diisi';
+              return 'Email harus diisi';
             }
             return null;
           },
@@ -436,14 +436,12 @@ class _LoginPageState extends State<LoginPage> {
 
           if (result.error is DioException) {
             final dioError = result.error as DioException;
-            if (dioError.response?.data != null) {
-              // Try to extract error message from response
-              if (dioError.response?.data is Map) {
-                errorMessage =
-                    dioError.response?.data['message'] ??
-                    dioError.response?.data['error'] ??
-                    'Email atau password salah';
-              }
+            final resolvedMessage = _resolveLoginErrorMessage(
+              dioError.response?.data,
+            );
+
+            if (resolvedMessage != null && resolvedMessage.isNotEmpty) {
+              errorMessage = resolvedMessage;
             } else if (dioError.type == DioExceptionType.connectionTimeout ||
                 dioError.type == DioExceptionType.receiveTimeout) {
               errorMessage = 'Koneksi timeout, periksa koneksi internet Anda';
@@ -547,5 +545,74 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     }
+  }
+
+  String? _resolveLoginErrorMessage(dynamic responseData) {
+    if (responseData == null) return null;
+
+    if (responseData is String && responseData.isNotEmpty) {
+      return responseData;
+    }
+
+    if (responseData is Map) {
+      final data = responseData.cast<String, dynamic>();
+
+      final errors = data['errors'];
+      if (errors is Map) {
+        final emailError = _firstErrorMessage(errors['email']);
+        if (emailError != null) {
+          return _normalizeFieldError(emailError, fieldLabel: 'Email');
+        }
+
+        final passwordError = _firstErrorMessage(errors['password']);
+        if (passwordError != null) {
+          return _normalizeFieldError(passwordError, fieldLabel: 'Password');
+        }
+      }
+
+      final errorText = data['error'];
+      if (errorText is String && errorText.isNotEmpty) {
+        final lower = errorText.toLowerCase();
+        if (lower.contains('email')) {
+          return _normalizeFieldError(errorText, fieldLabel: 'Email');
+        } else if (lower.contains('password')) {
+          return _normalizeFieldError(errorText, fieldLabel: 'Password');
+        }
+        return errorText;
+      }
+
+      final messageText = data['message'];
+      if (messageText is String && messageText.isNotEmpty) {
+        return messageText;
+      }
+    }
+
+    return null;
+  }
+
+  String? _firstErrorMessage(dynamic value) {
+    if (value is List && value.isNotEmpty) {
+      return value.first.toString();
+    }
+    if (value is String && value.isNotEmpty) {
+      return value;
+    }
+    return null;
+  }
+
+  String _normalizeFieldError(String message, {required String fieldLabel}) {
+    final lower = message.toLowerCase();
+    final isEmptyField =
+        lower.contains('harus diisi') ||
+        lower.contains('tidak boleh kosong') ||
+        lower.contains('required') ||
+        lower.contains('tidak diisi') ||
+        lower.contains('kosong');
+
+    if (isEmptyField) {
+      return '$fieldLabel harus diisi';
+    }
+
+    return message;
   }
 }
