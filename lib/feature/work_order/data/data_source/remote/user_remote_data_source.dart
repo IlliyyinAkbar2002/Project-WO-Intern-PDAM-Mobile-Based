@@ -6,25 +6,53 @@ import 'package:mobile_intern_pdam/feature/work_order/data/models/user_model.dar
 class UserRemoteDataSource extends RemoteDatasource {
   UserRemoteDataSource() : super();
 
-  Future<DataState<List<UserModel>>> fetchUsers() async {
+  /// Fetch users with optional filters for department and position(s)
+  ///
+  /// [departemenId] - Optional department ID to filter by
+  /// [jabatanIds] - Optional list of position IDs to filter by
+  Future<DataState<List<UserModel>>> fetchUsers({
+    int? departemenId,
+    List<int>? jabatanIds,
+  }) async {
     try {
+      // Build query parameters
+      final Map<String, dynamic> queryParams = {};
+
+      if (departemenId != null) {
+        queryParams['departemen_id'] = departemenId;
+      }
+
+      if (jabatanIds != null && jabatanIds.isNotEmpty) {
+        // For array parameters, use 'jabatan_id[]' format
+        queryParams['jabatan_id[]'] = jabatanIds;
+      }
+
       // Use parent class's get() method which includes auth headers
-      final response = await get(path: '/v1/pegawai');
-      print("📥 Raw response from /v1/pegawai: ${response.data}");
+      final response = await get(
+        path: '/v1/pegawai/filter',
+        queryParameters: queryParams,
+      );
+      print("📥 Raw response from /v1/pegawai/filter: ${response.data}");
       print("📥 Response type: ${response.data.runtimeType}");
 
+      // The new endpoint wraps data in a 'data' field
+      dynamic responseData = response.data;
+      if (responseData is Map && responseData.containsKey('data')) {
+        responseData = responseData['data'];
+      }
+
       // Check if response is a list
-      if (response.data is! List) {
-        print("❌ Expected List but got ${response.data.runtimeType}");
+      if (responseData is! List) {
+        print("❌ Expected List but got ${responseData.runtimeType}");
         return DataFailed(
           DioException(
             error: "Invalid response format: expected List",
-            requestOptions: RequestOptions(path: '/v1/pegawai'),
+            requestOptions: RequestOptions(path: '/v1/pegawai/filter'),
           ),
         );
       }
 
-      final List<dynamic> responseList = response.data as List;
+      final List<dynamic> responseList = responseData;
       print("📥 Total items: ${responseList.length}");
 
       // Check first item structure
@@ -38,51 +66,36 @@ class UserRemoteDataSource extends RemoteDatasource {
         }
       }
 
-      // Parse each item
+      // Parse each item - the new endpoint already returns properly structured data
       final data = responseList.map<UserModel>((item) {
-        print("🔍 Processing item from /v1/pegawai: $item");
+        print("🔍 Processing item from /v1/pegawai/filter: $item");
         print("🔍 Item type: ${item.runtimeType}");
 
-        // Check if this is already a user object with nested pegawai
-        // or just a pegawai object that needs to be wrapped
-        Map<String, dynamic> userMap;
+        // The new endpoint already returns data with nested 'pegawai' field
+        Map<String, dynamic> userMap = Map<String, dynamic>.from(item);
 
-        if (item['pegawai'] != null) {
-          // API already returns user with nested pegawai
-          print("✅ Item already has nested 'pegawai' field from /v1/pegawai");
-          userMap = Map<String, dynamic>.from(item);
-        } else {
-          // API returns just pegawai data, need to wrap it
-          print("🔄 Wrapping pegawai data in user structure from /v1/pegawai");
-          userMap = {
-            'id': item['user_id'] ?? item['id'],
-            'pegawai_id': item['id'],
-            'email': item['email'],
-            'role_id': item['role_id'],
-            'pegawai': item, // Nest the entire item as pegawai
-          };
-        }
-
-        print("🔍 Final userMap from /v1/pegawai: $userMap");
+        print("🔍 Final userMap from /v1/pegawai/filter: $userMap");
         final userModel = UserModel.fromMap(userMap);
         print(
-          "🔍 Parsed UserModel from /v1/pegawai: id=${userModel.id}, name=${userModel.employee?.name}, nip=${userModel.employee?.nip}",
+          "🔍 Parsed UserModel from /v1/pegawai/filter: id=${userModel.id}, name=${userModel.employee?.name}, nip=${userModel.employee?.nip}",
         );
         return userModel;
       }).toList();
 
-      print("✅ Successfully parsed ${data.length} users from /v1/pegawai");
       print(
-        "✅ Sample result from /v1/pegawai: ${data.isNotEmpty ? '${data.first.employee?.name} - ${data.first.employee?.nip}' : 'empty'}",
+        "✅ Successfully parsed ${data.length} users from /v1/pegawai/filter",
+      );
+      print(
+        "✅ Sample result from /v1/pegawai/filter: ${data.isNotEmpty ? '${data.first.employee?.name} - ${data.first.employee?.nip}' : 'empty'}",
       );
       return DataSuccess(data);
     } catch (e, stackTrace) {
-      print("❌ Error fetching pegawai from /v1/pegawai: $e");
-      print("❌ Stack trace from /v1/pegawai: $stackTrace");
+      print("❌ Error fetching pegawai from /v1/pegawai/filter: $e");
+      print("❌ Stack trace from /v1/pegawai/filter: $stackTrace");
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/v1/pegawai'),
+          requestOptions: RequestOptions(path: '/v1/pegawai/filter'),
         ),
       );
     }

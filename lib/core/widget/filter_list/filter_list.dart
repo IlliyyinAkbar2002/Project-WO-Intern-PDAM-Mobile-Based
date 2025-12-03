@@ -4,6 +4,79 @@ import 'package:mobile_intern_pdam/core/resource/data_state.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/data_source/remote/user_remote_data_source.dart';
 import 'package:mobile_intern_pdam/feature/work_order/data/models/user_model.dart';
 
+/// Filter result class to hold all filter values
+class FilterResult {
+  final bool? isOvertime; // null = all, false = Normal, true = Lembur
+  final int? assigneeId;
+  final String? assigneeName;
+  final List<int>? statusIds;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final String? quickDate;
+
+  const FilterResult({
+    this.isOvertime,
+    this.assigneeId,
+    this.assigneeName,
+    this.statusIds,
+    this.startDate,
+    this.endDate,
+    this.quickDate,
+  });
+
+  bool get hasFilters =>
+      isOvertime != null ||
+      assigneeId != null ||
+      (statusIds != null && statusIds!.isNotEmpty) ||
+      startDate != null ||
+      endDate != null ||
+      quickDate != null;
+
+  int get filterCount {
+    int count = 0;
+    if (isOvertime != null) count++;
+    if (assigneeId != null) count++;
+    if (statusIds != null && statusIds!.isNotEmpty) count++;
+    if (startDate != null || endDate != null || quickDate != null) count++;
+    return count;
+  }
+}
+
+/// Status mapping constants
+class WorkOrderStatus {
+  static const int belumDisetujui = 1;
+  static const int disetujui = 2;
+  static const int revisi = 3;
+  static const int ditolak = 4;
+  static const int pengecekan = 5;
+  static const int selesai = 6;
+  static const int inProgress = 7;
+  static const int freeze = 8;
+
+  static int? fromString(String? status) {
+    switch (status) {
+      case 'Belum disetujui':
+        return belumDisetujui;
+      case 'Disetujui':
+        return disetujui;
+      case 'Revisi':
+        return revisi;
+      case 'Ditolak':
+        return ditolak;
+      case 'Pengecekan':
+        return pengecekan;
+      case 'Selesai':
+        return selesai;
+      case 'In Progress':
+        return inProgress;
+      case 'Freeze':
+        return freeze;
+      default:
+        return null;
+    }
+  }
+}
+
 class CustomFilterDialog extends StatefulWidget {
   const CustomFilterDialog({super.key});
 
@@ -14,7 +87,8 @@ class CustomFilterDialog extends StatefulWidget {
 class _CustomFilterDialogState extends AppStatePage<CustomFilterDialog> {
   String? selectedWorkOrderType;
   String? selectedStatus;
-  String? selectedAssignee;
+  int? selectedAssigneeId;
+  String? selectedAssigneeName;
   DateTime? startDate;
   DateTime? endDate;
   String? selectedQuickDate;
@@ -23,7 +97,7 @@ class _CustomFilterDialogState extends AppStatePage<CustomFilterDialog> {
     int count = 0;
     if (selectedWorkOrderType != null) count++;
     if (selectedStatus != null) count++;
-    if (selectedAssignee != null && selectedAssignee!.isNotEmpty) count++;
+    if (selectedAssigneeId != null) count++;
     if (startDate != null || endDate != null || selectedQuickDate != null) {
       count++;
     }
@@ -33,7 +107,8 @@ class _CustomFilterDialogState extends AppStatePage<CustomFilterDialog> {
   void _resetAllFilters() {
     setState(() {
       selectedWorkOrderType = null;
-      selectedAssignee = null;
+      selectedAssigneeId = null;
+      selectedAssigneeName = null;
       selectedStatus = null;
       startDate = null;
       endDate = null;
@@ -151,7 +226,10 @@ class _CustomFilterDialogState extends AppStatePage<CustomFilterDialog> {
     return _buildSection(
       title: 'Nama Petugas',
       onReset: () {
-        setState(() => selectedAssignee = null);
+        setState(() {
+          selectedAssigneeId = null;
+          selectedAssigneeName = null;
+        });
       },
       child: GestureDetector(
         onTap: () => _showOfficerSearchBottomSheet(),
@@ -166,10 +244,10 @@ class _CustomFilterDialogState extends AppStatePage<CustomFilterDialog> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                selectedAssignee ?? 'Cari nama petugas...',
+                selectedAssigneeName ?? 'Cari nama petugas...',
                 style: TextStyle(
                   fontSize: 16,
-                  color: selectedAssignee != null
+                  color: selectedAssigneeName != null
                       ? Colors.black
                       : Colors.black.withOpacity(0.6),
                   fontWeight: FontWeight.w400,
@@ -188,17 +266,20 @@ class _CustomFilterDialogState extends AppStatePage<CustomFilterDialog> {
   }
 
   Future<void> _showOfficerSearchBottomSheet() async {
-    final result = await showModalBottomSheet<String>(
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) =>
-          OfficerSearchSheet(selectedOfficer: selectedAssignee),
+      builder: (context) => OfficerSearchSheet(
+        selectedOfficerId: selectedAssigneeId,
+        selectedOfficerName: selectedAssigneeName,
+      ),
     );
 
     if (result != null) {
       setState(() {
-        selectedAssignee = result;
+        selectedAssigneeId = result['id'] as int?;
+        selectedAssigneeName = result['name'] as String?;
       });
     }
   }
@@ -350,14 +431,31 @@ class _CustomFilterDialogState extends AppStatePage<CustomFilterDialog> {
         const SizedBox(width: 18),
         Expanded(
           child: ElevatedButton(
-            onPressed: () => Navigator.pop(context, {
-              'workOrderType': selectedWorkOrderType,
-              'assignee': selectedAssignee,
-              'status': selectedStatus,
-              'startDate': startDate,
-              'endDate': endDate,
-              'quickDate': selectedQuickDate,
-            }),
+            onPressed: () {
+              // Convert selectedStatus string to status ID
+              final statusId = WorkOrderStatus.fromString(selectedStatus);
+
+              // Convert workOrderType to isOvertime boolean
+              bool? isOvertime;
+              if (selectedWorkOrderType == 'Normal') {
+                isOvertime = false;
+              } else if (selectedWorkOrderType == 'Lembur') {
+                isOvertime = true;
+              }
+
+              Navigator.pop(
+                context,
+                FilterResult(
+                  isOvertime: isOvertime,
+                  assigneeId: selectedAssigneeId,
+                  assigneeName: selectedAssigneeName,
+                  statusIds: statusId != null ? [statusId] : null,
+                  startDate: startDate,
+                  endDate: endDate,
+                  quickDate: selectedQuickDate,
+                ),
+              );
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF2D499B),
               foregroundColor: Colors.white,
@@ -541,9 +639,14 @@ class _CustomFilterDialogState extends AppStatePage<CustomFilterDialog> {
 /// Officer Search Bottom Sheet Widget
 /// This bottom sheet allows users to search and select an officer from a list
 class OfficerSearchSheet extends StatefulWidget {
-  final String? selectedOfficer;
+  final int? selectedOfficerId;
+  final String? selectedOfficerName;
 
-  const OfficerSearchSheet({super.key, this.selectedOfficer});
+  const OfficerSearchSheet({
+    super.key,
+    this.selectedOfficerId,
+    this.selectedOfficerName,
+  });
 
   @override
   State<OfficerSearchSheet> createState() => _OfficerSearchSheetState();
@@ -820,10 +923,13 @@ class _OfficerSearchSheetState extends State<OfficerSearchSheet> {
         final name = employee?.name ?? 'Nama tidak tersedia';
         final nip = employee?.nip ?? '-';
 
+        final officerId = officer.id;
+        final isSelected = widget.selectedOfficerId == officerId;
+
         return InkWell(
           onTap: () {
-            // Return the selected officer name to the caller
-            Navigator.pop(context, name);
+            // Return the selected officer id and name to the caller
+            Navigator.pop(context, {'id': officerId, 'name': name});
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -879,7 +985,7 @@ class _OfficerSearchSheetState extends State<OfficerSearchSheet> {
                   ),
                 ),
                 // Checkmark for selected officer
-                if (widget.selectedOfficer == name)
+                if (isSelected)
                   const Icon(
                     Icons.check_circle,
                     color: Color(0xFF2D499B),

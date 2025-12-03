@@ -32,7 +32,7 @@ class _CreateWorkOrderPageState extends AppStatePage<CreateWorkOrderPage> {
   Widget buildPage(BuildContext context) {
     return Scaffold(
       appBar: (widget.workOrderId == null)
-          ? const CustomAppBar(title: 'Buat Work Order')
+          ? const CustomAppBar(title: 'Assigment Work Order')
           : null,
       body: Column(
         children: [

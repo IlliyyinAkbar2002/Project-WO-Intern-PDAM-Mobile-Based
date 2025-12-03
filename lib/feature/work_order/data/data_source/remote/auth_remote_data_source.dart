@@ -12,14 +12,14 @@ class AuthRemoteDataSource extends RemoteDatasource {
   }) async {
     try {
       print('🔐 Attempting login for: $email');
-      print('📡 Full URL: ${dio.options.baseUrl}/v1/mobile/login');
+      print('📡 Full URL: ${dio.options.baseUrl}/v1/auth/login');
       print('📡 Headers: ${dio.options.headers}');
       print(
         '📤 Sending data: {email: $email, password: ${password.replaceAll(RegExp(r'.'), '*')}}',
       );
 
       final response = await post(
-        path: '/v1/mobile/login',
+        path: '/v1/auth/login',
         data: {'email': email, 'password': password},
       );
 
@@ -43,7 +43,7 @@ class AuthRemoteDataSource extends RemoteDatasource {
       return DataFailed(
         DioException(
           error: e,
-          requestOptions: RequestOptions(path: '/v1/mobile/login'),
+          requestOptions: RequestOptions(path: '/v1/auth/login'),
         ),
       );
     }
